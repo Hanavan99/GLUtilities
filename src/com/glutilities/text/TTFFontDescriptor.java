@@ -5,7 +5,7 @@ import java.util.List;
 
 import com.glutilities.text.ttf.Table;
 
-public class TTFFont {
+public class TTFFontDescriptor {
 
 	private String name;
 	private List<Table> tables = new ArrayList<Table>();

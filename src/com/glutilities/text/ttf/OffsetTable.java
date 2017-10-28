@@ -61,4 +61,13 @@ public class OffsetTable extends Table {
 		return entries;
 	}
 
+	public OffsetTableEntry getEntryByTag(String tag) {
+		for (OffsetTableEntry entry : entries) {
+			if (entry.getTag().equals(tag)) {
+				return entry;
+			}
+		}
+		return null;
+	}
+
 }

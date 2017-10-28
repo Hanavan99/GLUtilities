@@ -7,7 +7,7 @@ import java.util.List;
 
 public class TTFFontManager {
 
-	private static List<TTFFont> loadedFonts = new ArrayList<TTFFont>();
+	private static List<TTFFontDescriptor> loadedFonts = new ArrayList<TTFFontDescriptor>();
 
 	public static void loadFont(String name) {
 		try {
@@ -17,7 +17,7 @@ public class TTFFontManager {
 		}
 	}
 	
-	public static TTFFont getFont(String name) {
+	public static TTFFontDescriptor getFont(String name) {
 		return loadedFonts.get(0);
 	}
 

@@ -25,6 +25,27 @@ public class Vertex3 {
 		z /= scale;
 	}
 
+	public void crossProduct(Vertex3 b) {
+		double _x = y * b.z - z * b.y;
+		double _y = z * b.x - x * b.x;
+		double _z = x * b.y - y * b.x;
+		x = _x;
+		y = _y;
+		z = _z;
+	}
+	
+	public void scale(Vertex3 b) {
+		x *= b.x;
+		y *= b.y;
+		z *= b.z;
+	}
+	
+	public void negate() {
+		x *= -1;
+		y *= -1;
+		z *= -1;
+	}
+
 	public double distance() {
 		return Math.sqrt(x * x + y * y + z * z);
 	}
@@ -37,7 +58,8 @@ public class Vertex3 {
 	}
 
 	/**
-	 * @param x the x to set
+	 * @param x
+	 *            the x to set
 	 */
 	public void setX(double x) {
 		this.x = x;
@@ -51,7 +73,8 @@ public class Vertex3 {
 	}
 
 	/**
-	 * @param y the y to set
+	 * @param y
+	 *            the y to set
 	 */
 	public void setY(double y) {
 		this.y = y;
@@ -65,10 +88,15 @@ public class Vertex3 {
 	}
 
 	/**
-	 * @param z the z to set
+	 * @param z
+	 *            the z to set
 	 */
 	public void setZ(double z) {
 		this.z = z;
+	}
+	
+	public Vertex2 toVertex2() {
+		return new Vertex2(x, y);
 	}
 
 }

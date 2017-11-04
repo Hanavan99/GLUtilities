@@ -12,19 +12,24 @@ import org.lwjgl.opengl.GL11;
 public class Texture {
 
 	private final int id;
+	private final String name;
 	private final int width;
 	private final int height;
 
 	/**
-	 * Creates a new texture with the OpenGL-assigned ID, and the image's width
-	 * and height.
+	 * Creates a new texture with the OpenGL-assigned ID, and the image's width and
+	 * height.
 	 * 
-	 * @param id the ID
-	 * @param width the width of the texture
-	 * @param height the height of the texture
+	 * @param id
+	 *            the ID
+	 * @param width
+	 *            the width of the texture
+	 * @param height
+	 *            the height of the texture
 	 */
-	public Texture(int id, int width, int height) {
+	public Texture(int id, String name, int width, int height) {
 		this.id = id;
+		this.name = name;
 		this.width = width;
 		this.height = height;
 	}
@@ -34,6 +39,13 @@ public class Texture {
 	 */
 	public int getID() {
 		return id;
+	}
+
+	/**
+	 * @return the name
+	 */
+	public String getName() {
+		return name;
 	}
 
 	/**
@@ -51,8 +63,8 @@ public class Texture {
 	}
 
 	/**
-	 * Binds the texture to OpenGL so that any subsequent triangles or quads
-	 * that are drawn are shaded with the texture.
+	 * Binds the texture to OpenGL so that any subsequent triangles or quads that
+	 * are drawn are shaded with the texture.
 	 */
 	public void bind() {
 		GL11.glBindTexture(GL11.GL_TEXTURE_2D, id);

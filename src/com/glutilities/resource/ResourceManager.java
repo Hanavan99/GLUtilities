@@ -1,6 +1,5 @@
 package com.glutilities.resource;
 
-import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -13,46 +12,54 @@ import java.util.List;
  * 
  * @author Hanavan99
  *
- * @param <R> The type of resource stored
- * @param <K> The type of key used to uniquely identify each resource
+ * @param <R>
+ *            The type of resource stored
+ * @param <K>
+ *            The type of key used to uniquely identify each resource
+ * @param <S>
+ *            The type of source the resource is loaded from (File, String,
+ *            etc.)
  */
-public abstract class ResourceManager<R, K> {
+public abstract class ResourceManager<R, K, S> {
 
-	private ResourceLoader<R, K> loader;
+	private ResourceLoader<R, K, S> loader;
 	private List<R> resources = new ArrayList<R>();
 
 	/**
-	 * Constructor that accepts a {@code ResourceLoader} object for use when
-	 * loading resources. This constructor should be called in the subclass.
+	 * Constructor that accepts a {@code ResourceLoader} object for use when loading
+	 * resources. This constructor should be called in the subclass.
 	 * 
-	 * @param loader The {@code ResourceLoader} object to use for loading
-	 *            resources
+	 * @param loader
+	 *            The {@code ResourceLoader} object to use for loading resources
 	 */
-	public ResourceManager(ResourceLoader<R, K> loader) {
+	public ResourceManager(ResourceLoader<R, K, S> loader) {
 		this.loader = loader;
 	}
 
 	/**
-	 * Loads a resource from the specified file using the resource loader. Note
-	 * that if the loader's {@code load()} method throws an exception, the
-	 * resource will not be loaded.
+	 * Loads a resource from the specified file using the resource loader. Note that
+	 * if the loader's {@code load()} method throws an exception, the resource will
+	 * not be loaded.
 	 * 
-	 * @param file The path to the file
-	 * @param key The key to be used to reference the resource
+	 * @param src
+	 *            The source to load the resource from
+	 * @param key
+	 *            The key to be used to reference the resource
 	 */
-	public void load(File file, K key) {
+	public void load(S src, K key) {
 		try {
-			resources.add(loader.load(file, key));
+			resources.add(loader.load(src, key));
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
 	}
 
 	/**
-	 * Gets the resource identified by a key. If no resource is found,
-	 * {@code null} is returned.
+	 * Gets the resource identified by a key. If no resource is found, {@code null}
+	 * is returned.
 	 * 
-	 * @param key The key of the resource
+	 * @param key
+	 *            The key of the resource
 	 * @return The resource
 	 */
 	public R get(K key) {
@@ -65,13 +72,13 @@ public abstract class ResourceManager<R, K> {
 	}
 
 	/**
-	 * Removes all resources that were stored internally. Once called, none of
-	 * the previous resources will be accessible, but future additions will be.
+	 * Removes all resources that were stored internally. Once called, none of the
+	 * previous resources will be accessible, but future additions will be.
 	 */
 	public void deleteResources() {
 		resources.clear();
 	}
-	
+
 	/**
 	 * Gets all of the resources loaded by this {@code ResourceLoader}.
 	 * 

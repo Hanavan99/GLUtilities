@@ -8,18 +8,24 @@ import com.glutilities.util.GLMath;
 
 public class Glyph {
 
+	private char character;
 	private double[] xPoints;
 	private double[] yPoints;
 	private double width;
 	private double height;
 	private int[] flags;
 
-	public Glyph(double[] xPoints, double[] yPoints, double width, double height, int[] flags) {
+	public Glyph(char character, double[] xPoints, double[] yPoints, double width, double height, int[] flags) {
+		this.character = character;
 		this.xPoints = xPoints;
 		this.yPoints = yPoints;
 		this.width = width;
 		this.height = height;
 		this.flags = flags;
+	}
+	
+	public char getCharacter() {
+		return character;
 	}
 
 	public double getWidth() {

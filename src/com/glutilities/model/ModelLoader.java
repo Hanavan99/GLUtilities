@@ -8,11 +8,11 @@ import java.util.Scanner;
 
 import com.glutilities.resource.ResourceLoader;
 
-public class ModelLoader extends ResourceLoader<Model, String> {
+public class ModelLoader extends ResourceLoader<Model, String, File> {
 
-	public Model load(File file, String key) {
+	public Model load(File src, String key) {
 		try {
-			Scanner filein = new Scanner(file);
+			Scanner filein = new Scanner(src);
 			List<Float> verts = new ArrayList<Float>();
 			List<Float> norms = new ArrayList<Float>();
 			List<Float> texcs = new ArrayList<Float>();

@@ -1,7 +1,5 @@
 package com.glutilities.model;
 
-import java.util.Arrays;
-
 import org.lwjgl.opengl.GL11;
 
 public class Model {

@@ -1,6 +1,5 @@
 package com.glutilities.resource;
 
-import java.io.File;
 import java.io.IOException;
 
 /**
@@ -13,21 +12,24 @@ import java.io.IOException;
  *            The type of resource stored
  * @param <K>
  *            The type of key used to uniquely identify each resource
+ * @param <S>
+ *            The type of source the resource is loaded from (File, String,
+ *            etc.)
  */
-public abstract class ResourceLoader<R, K> {
+public abstract class ResourceLoader<R, K, S> {
 
 	/**
 	 * Load a resource from a file.
 	 * 
-	 * @param file
-	 *            The file path
+	 * @param src
+	 *            The source used to load the resource
 	 * @param key
 	 *            The key used to identify this resource
 	 * @return The resource
 	 * @throws IOException
 	 *             If there is some problem reading the file
 	 */
-	public abstract R load(File file, K key) throws IOException;
+	public abstract R load(S src, K key) throws IOException;
 
 	/**
 	 * Determines if a given resource is identified by this key. Usually the key

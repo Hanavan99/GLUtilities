@@ -1,6 +1,6 @@
-//package com.glutilities.text.ttf;
+package com.glutilities.text.ttf;
 //
-//public class TTFPrimitive {
+public class TTFPrimitive {
 //
 //	
 //
@@ -64,4 +64,4 @@
 //		return data & mask >> (int) (Math.log(mask) / Math.log(2));
 //	}
 //
-//}
+}

@@ -64,7 +64,8 @@ public class ModelLoader extends ResourceLoader<Model, String> {
 				}
 			}
 			filein.close();
-			return new Model(key, fromFloat(verts.toArray(new Float[0])), fromFloat(norms.toArray(new Float[0])), fromFloat(texcs.toArray(new Float[0])), fromInteger(drawi.toArray(new Integer[0])), null);
+			return new Model(key, fromFloat(verts.toArray(new Float[0])), fromFloat(norms.toArray(new Float[0])),
+					fromFloat(texcs.toArray(new Float[0])), fromInteger(drawi.toArray(new Integer[0])), null);
 		} catch (IOException e) {
 			e.printStackTrace();
 			return null;
@@ -90,6 +91,11 @@ public class ModelLoader extends ResourceLoader<Model, String> {
 	@Override
 	public boolean keyReferencesResource(Model resource, String key) {
 		return resource.getModelName().equals(key);
+	}
+
+	@Override
+	public String getKeyFromResource(Model resource) {
+		return resource.getModelName();
 	}
 
 }

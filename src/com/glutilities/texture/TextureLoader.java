@@ -17,4 +17,9 @@ public class TextureLoader extends ResourceLoader<Texture, Integer> {
 		return resource.getID() == key.intValue();
 	}
 
+	@Override
+	public Integer getKeyFromResource(Texture resource) {
+		return resource.getID();
+	}
+
 }

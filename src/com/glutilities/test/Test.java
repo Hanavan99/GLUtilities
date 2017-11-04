@@ -1,6 +1,7 @@
 package com.glutilities.test;
 
 import java.io.File;
+import java.util.List;
 
 import org.lwjgl.glfw.GLFW;
 import org.lwjgl.opengl.GL11;
@@ -14,10 +15,11 @@ public class Test {
 
 	// https://www.microsoft.com/typography/otspec/glyf.htm
 
+	public static int fps;
 	/*
 	 * Features: JavaScript rendering TTF Font support Texture Loading Dynamic
-	 * Shaders Maybe VBOs AWT-Like rendering system Input handling (Keyboard,
-	 * Mouse, Controller)
+	 * Shaders Maybe VBOs AWT-Like rendering system Input handling (Keyboard, Mouse,
+	 * Controller)
 	 */
 	public static void main(String[] args) {
 		// TODO Auto-generated method stub
@@ -40,27 +42,48 @@ public class Test {
 		// OffsetTable ot = (OffsetTable) font.getTable(OffsetTable.class);
 		// System.out.println(ot.getSfntVersion());
 
-//		FontManager.loadFont("Arial", 0);
-//		
-//		GLFW.glfwInit();
-//		GLRootPane pane = new GLRootPane(800, 600, "Testing", 0);
-//		pane.addComponent(new GLTextArea());
-//		pane.loop();
-		ModelManager mm = new ModelManager();
-		mm.load(new File("C:/Users/Hanavan/Desktop/car.obj"), "car");
-		final Model car = mm.get("car");
+		// FontManager.loadFont("Arial", 0);
+		//
+		// GLFW.glfwInit();
+		// GLRootPane pane = new GLRootPane(800, 600, "Testing", 0);
+		// pane.addComponent(new GLTextArea());
+		// pane.loop();
 		GLFW.glfwInit();
-		GLRootPane pane = new GLRootPane(800, 600, "Testing", 0);
+		ModelManager mm = new ModelManager();
+		File f = new File("D:/models/car.obj");
+		mm.load(f, "car");
+		final Model car = mm.get("car");
+		GLRootPane pane = new GLRootPane(1920, 1080, "Testing", GLFW.glfwGetPrimaryMonitor());
 		pane.addComponent(new GLComponent() {
 
 			@Override
 			public void render() {
-				GL11.glTranslated(0, 0, -15);
-				car.draw();
+				GL11.glTranslated(0, 0, -10);
+				GL11.glRotated(-40, 1, 0, 0);
+				GL11.glRotated(System.nanoTime() / 100000000d, 0, 0, 1);
+				if (car != null) {
+					car.draw();
+				}
+				fps++;
 			}
-			
+
 		});
+		Thread fpsThread = new Thread(() -> {
+			while (true) {
+				try {
+					Thread.sleep(1000);
+					System.out.printf("FPS: %d\n", fps);
+					fps = 0;
+				} catch (InterruptedException e) {
+					break;
+				}
+			}
+		});
+		fpsThread.start();
+		
 		pane.loop();
+		
+		fpsThread.interrupt();
 	}
 
 }

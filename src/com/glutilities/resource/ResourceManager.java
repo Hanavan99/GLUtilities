@@ -42,9 +42,9 @@ public abstract class ResourceManager<R, K> {
 	 */
 	public void load(File file, K key) {
 		try {
-			loader.load(file, key);
+			resources.add(loader.load(file, key));
 		} catch (IOException e) {
-
+			e.printStackTrace();
 		}
 	}
 
@@ -70,6 +70,29 @@ public abstract class ResourceManager<R, K> {
 	 */
 	public void deleteResources() {
 		resources.clear();
+	}
+	
+	/**
+	 * Gets all of the resources loaded by this {@code ResourceLoader}.
+	 * 
+	 * @return The resources
+	 */
+	public List<R> getResources() {
+		return resources;
+	}
+
+	/**
+	 * Gets all of the keys that reference the resources held in this
+	 * {@code ResourceLoader}.
+	 * 
+	 * @return The keys
+	 */
+	public List<K> getKeys() {
+		List<K> keys = new ArrayList<K>();
+		for (R resource : resources) {
+			keys.add(loader.getKeyFromResource(resource));
+		}
+		return keys;
 	}
 
 }

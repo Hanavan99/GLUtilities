@@ -2,8 +2,8 @@ package com.glutilities.util;
 
 public class Vertex2 {
 
-	private double x;
-	private double y;
+	protected double x;
+	protected double y;
 
 	public Vertex2(double x, double y) {
 		this.x = x;

@@ -66,11 +66,10 @@ public class FontLoader extends ResourceLoader<Charset, String, String> {
 					break;
 				}
 			}
-			System.out.printf("Character ID %d: %c", i, (char) i);
-			glyphs[i] = new Glyph((char) i, xPoints, yPoints, s.getBounds().getWidth(), s.getBounds().getHeight(),
+			glyphs[glyphNum] = new Glyph((char) glyphNum, xPoints, yPoints, s.getBounds().getWidth(), s.getBounds().getHeight(),
 					flags);
 		}
-		return new Charset(src, glyphs);
+		return new Charset(key, glyphs);
 	}
 
 	@Override

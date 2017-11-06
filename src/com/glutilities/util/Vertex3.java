@@ -1,23 +1,20 @@
 package com.glutilities.util;
 
-public class Vertex3 {
+public class Vertex3 extends Vertex2 {
 
-	private double x;
-	private double y;
 	private double z;
 
 	public Vertex3(double x, double y, double z) {
-		this.x = x;
-		this.y = y;
+		super(x, y);
 		this.z = z;
 	}
 
 	public void add(Vertex3 v) {
-		x += v.x;
-		y += v.y;
+		super.add(v);
 		z += v.z;
 	}
 
+	@Override
 	public void normalize() {
 		double scale = Math.sqrt(x * x + y * y + z * z);
 		x /= scale;
@@ -35,17 +32,16 @@ public class Vertex3 {
 	}
 	
 	public void scale(Vertex3 b) {
-		x *= b.x;
-		y *= b.y;
+		super.scale(b);
 		z *= b.z;
 	}
 	
 	public void negate() {
-		x *= -1;
-		y *= -1;
+		super.negate();
 		z *= -1;
 	}
 
+	@Override
 	public double distance() {
 		return Math.sqrt(x * x + y * y + z * z);
 	}

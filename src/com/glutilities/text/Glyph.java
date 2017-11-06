@@ -36,7 +36,7 @@ public class Glyph {
 		return height;
 	}
 
-	public void draw(double x, double y) {
+	public void draw() {
 		double dx = 0;
 		double dy = 0;
 		double lastx = 0;

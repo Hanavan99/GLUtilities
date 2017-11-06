@@ -2,7 +2,7 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>com.github.hanavan99</groupId>
   <artifactId>GLUtilities</artifactId>
-  <version>0.0.6-SNAPSHOT</version>
+  <version>0.0.8-SNAPSHOT</version>
   <name>OpenGL Utilities</name>
   <description>GLUtilities is a wrapper for LWJGL that allows for easier creation of games and 3D applications. Adds features such as Model loading, Texture loading, Text rendering, Lighting, and other handy utilities.</description>
   <build>

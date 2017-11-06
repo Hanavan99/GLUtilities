@@ -1,5 +1,7 @@
 package com.glutilities.model;
 
+import java.util.Arrays;
+
 import org.lwjgl.opengl.GL11;
 
 public class Model {
@@ -8,7 +10,7 @@ public class Model {
 	private final float[] vertices;
 	private final float[] normals;
 	private final float[] texcoords;
-	private final int[] draworder;
+	private int[] draworder;
 	private final ModelMaterial[] materials;
 
 	public Model(String modelName, float[] vertices, float[] normals, float[] texcoords, int[] draworder, ModelMaterial[] materials) {
@@ -22,6 +24,14 @@ public class Model {
 	
 	public String getModelName() {
 		return modelName;
+	}
+	
+	public void reverseDrawOrder() {
+		int[] newdraworder = new int[draworder.length];
+		for (int i = 0; i < newdraworder.length; i++) {
+			newdraworder[i] = draworder[draworder.length - i - 1];
+		}
+		draworder = newdraworder;
 	}
 	
 	public void draw(int[] draworder) {

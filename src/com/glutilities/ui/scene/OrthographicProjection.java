@@ -1,8 +1,6 @@
-package com.glutilities.gui.scene;
+package com.glutilities.ui.scene;
 
 import org.lwjgl.opengl.GL11;
-
-import com.glutilities.gui.SceneProjection;
 
 public class OrthographicProjection extends SceneProjection {
 

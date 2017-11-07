@@ -1,4 +1,4 @@
-package com.glutilities.gui;
+package com.glutilities.ui.scene;
 
 /**
  * Describes the context in which a {@code GLWindow} will render the scene.

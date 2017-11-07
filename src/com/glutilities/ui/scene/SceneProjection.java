@@ -1,4 +1,4 @@
-package com.glutilities.gui;
+package com.glutilities.ui.scene;
 
 /**
  * Defines how to setup an OpenGL context for rendering specific scenes.

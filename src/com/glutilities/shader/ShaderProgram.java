@@ -5,8 +5,11 @@ import java.util.List;
 
 import org.lwjgl.opengl.ARBShaderObjects;
 import org.lwjgl.opengl.GL11;
+import org.lwjgl.opengl.GL20;
 
-public class ShaderProgram {
+import com.glutilities.core.Deletable;
+
+public class ShaderProgram implements Deletable {
 
 	private final int program;
 	private final List<ShaderObject> shaderObjects = new ArrayList<ShaderObject>();
@@ -30,12 +33,10 @@ public class ShaderProgram {
 	
 	public void compile() {
 		
-
 		for (ShaderObject object : shaderObjects) {
-			int shader = ARBShaderObjects.glCreateShaderObjectARB(object.getShaderType());
-			ARBShaderObjects.glShaderSourceARB(shader, object.getShader());
-			ARBShaderObjects.glCompileShaderARB(shader);
-			ARBShaderObjects.glAttachObjectARB(program, shader);
+			ARBShaderObjects.glShaderSourceARB(object.getShaderID(), object.getShader());
+			ARBShaderObjects.glCompileShaderARB(object.getShaderID());
+			ARBShaderObjects.glAttachObjectARB(program, object.getShaderID());
 		}
 		
 
@@ -54,6 +55,19 @@ public class ShaderProgram {
 		ARBShaderObjects.glLinkProgramARB(program);
 		
 		error = ARBShaderObjects.glGetInfoLogARB(program);
+	}
+	
+	public void enable() {
+		GL20.glUseProgram(program);
+	}
+	
+	public void disable() {
+		GL20.glUseProgram(0);
+	}
+
+	@Override
+	public void delete() {
+		GL20.glDeleteProgram(program);
 	}
 	
 }

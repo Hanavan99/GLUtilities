@@ -1,14 +1,18 @@
 package com.glutilities.shader;
 
-public class ShaderObject {
+import org.lwjgl.opengl.ARBShaderObjects;
+
+import com.glutilities.core.Deletable;
+
+public class ShaderObject implements Deletable {
 
 	private int shader;
 	private int shaderType;
 	private String name;
 	private String code;
 
-	public ShaderObject(int shader, int shaderType, String name, String code) {
-		this.shader = shader;
+	public ShaderObject(int shaderType, String name, String code) {
+		this.shader = ARBShaderObjects.glCreateShaderObjectARB(shaderType);
 		this.shaderType = shaderType;
 		this.name = name;
 		this.code = code;
@@ -28,6 +32,11 @@ public class ShaderObject {
 
 	public String getShader() {
 		return code;
+	}
+
+	@Override
+	public void delete() {
+		ARBShaderObjects.glDeleteObjectARB(shader);
 	}
 
 }

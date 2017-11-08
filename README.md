@@ -3,6 +3,8 @@
 GLUtilities is a Java library that is designed to make the creation of LWJGL applications easier and faster. The idea behind this project is that creating LWJGL projects that use OpenGL takes a lot of time 
 and things like text rendering and textures can seem impossible with all of the configuration that can be used. This library is the solution to that problem, and it makes doing the aforementioned tasks easier as well as many others.
 
+This library is NOT a Java implementation of the C and C++ GLU library. This library does however include some of its features.
+
 ## Features
 These are the features that are in the GLUtilities library:
  * Vertex Buffer Object classes

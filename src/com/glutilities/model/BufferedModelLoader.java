@@ -6,12 +6,13 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
 
+import org.lwjgl.opengl.GL11;
+
 import com.glutilities.resource.ResourceLoader;
 
-@Deprecated
-public class ModelLoader extends ResourceLoader<RawModel, String, File> {
+public class BufferedModelLoader extends ResourceLoader<BufferedModel, String, File> {
 
-	public RawModel load(File src, String key) {
+	public BufferedModel load(File src, String key) {
 		try {
 			Scanner filein = new Scanner(src);
 			List<Float> verts = new ArrayList<Float>();
@@ -40,6 +41,11 @@ public class ModelLoader extends ResourceLoader<RawModel, String, File> {
 					norms.add(Float.parseFloat(data[2]));
 					norms.add(Float.parseFloat(data[3]));
 					break;
+				case "vt":
+					texcs.add(Float.parseFloat(data[1]));
+					texcs.add(Float.parseFloat(data[2]));
+					texcs.add(Float.parseFloat(data[3]));
+					break;
 				case "f":
 					for (int i = 0; i < 3; i++) {
 						String[] subData = data[i + 1].split("/");
@@ -65,37 +71,43 @@ public class ModelLoader extends ResourceLoader<RawModel, String, File> {
 				}
 			}
 			filein.close();
-			return new RawModel(key, fromFloat(verts.toArray(new Float[0])), fromFloat(norms.toArray(new Float[0])),
-					fromFloat(texcs.toArray(new Float[0])), fromInteger(drawi.toArray(new Integer[0])), null);
+			int length = drawi.size();
+			int vertsPerShape = 3;
+			float[] vertices = new float[length];
+			float[] colors = new float[length];
+			float[] normals = new float[length];
+			float[] texcoords = new float[length];
+			for (int i = 0; i < length; i += 3) {
+				int vi = drawi.get(i) * vertsPerShape;
+				int ti = drawi.get(i + 1) * 1;
+				int ni = drawi.get(i + 2) * vertsPerShape;
+				vertices[i] = verts.get(vi);
+				vertices[i + 1] = verts.get(vi + 1);
+				vertices[i + 2] = verts.get(vi + 2);
+				colors[i] = 1;
+				colors[i + 1] = 1;
+				colors[i + 2] = 1;
+				normals[i] = norms.get(ni);
+				normals[i + 1] = norms.get(ni + 1);
+				normals[i + 2] = norms.get(ni + 2);
+				texcoords[i] = texcs.get(ti);
+				texcoords[i + 1] = texcs.get(ti + 1);
+				texcoords[i + 2] = texcs.get(ti + 2);
+			}
+			return new BufferedModel(key, vertices, colors, normals, texcoords, null, GL11.GL_TRIANGLES);
 		} catch (IOException e) {
 			e.printStackTrace();
 			return null;
 		}
 	}
 
-	private float[] fromFloat(Float[] f) {
-		float[] newArray = new float[f.length];
-		for (int i = 0; i < newArray.length; i++) {
-			newArray[i] = f[i];
-		}
-		return newArray;
-	}
-
-	private int[] fromInteger(Integer[] f) {
-		int[] newArray = new int[f.length];
-		for (int i = 0; i < newArray.length; i++) {
-			newArray[i] = f[i];
-		}
-		return newArray;
-	}
-
 	@Override
-	public boolean keyReferencesResource(RawModel resource, String key) {
+	public boolean keyReferencesResource(BufferedModel resource, String key) {
 		return resource.getModelName().equals(key);
 	}
 
 	@Override
-	public String getKeyFromResource(RawModel resource) {
+	public String getKeyFromResource(BufferedModel resource) {
 		return resource.getModelName();
 	}
 

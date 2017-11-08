@@ -2,9 +2,9 @@ package com.glutilities.shader;
 
 import org.lwjgl.opengl.ARBShaderObjects;
 
-import com.glutilities.core.Deletable;
+import com.glutilities.core.Reusable;
 
-public class ShaderObject implements Deletable {
+public class ShaderObject implements Reusable {
 
 	private int shader;
 	private int shaderType;
@@ -12,7 +12,6 @@ public class ShaderObject implements Deletable {
 	private String code;
 
 	public ShaderObject(int shaderType, String name, String code) {
-		this.shader = ARBShaderObjects.glCreateShaderObjectARB(shaderType);
 		this.shaderType = shaderType;
 		this.name = name;
 		this.code = code;
@@ -35,8 +34,15 @@ public class ShaderObject implements Deletable {
 	}
 
 	@Override
+	public void create() {
+		this.shader = ARBShaderObjects.glCreateShaderObjectARB(shaderType);
+	}
+	
+	@Override
 	public void delete() {
 		ARBShaderObjects.glDeleteObjectARB(shader);
 	}
+
+	
 
 }

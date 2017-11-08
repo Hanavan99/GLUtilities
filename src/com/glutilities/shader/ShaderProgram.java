@@ -7,16 +7,16 @@ import org.lwjgl.opengl.ARBShaderObjects;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL20;
 
-import com.glutilities.core.Deletable;
+import com.glutilities.core.Reusable;
 
-public class ShaderProgram implements Deletable {
+public class ShaderProgram implements Reusable {
 
-	private final int program;
-	private final List<ShaderObject> shaderObjects = new ArrayList<ShaderObject>();
+	private int program;
+	private List<ShaderObject> shaderObjects = new ArrayList<ShaderObject>();
 	private String error;
 	
 	public ShaderProgram() {
-		program = ARBShaderObjects.glCreateProgramObjectARB();
+		
 	}
 	
 	public void addShaderObject(ShaderObject object) {
@@ -66,8 +66,15 @@ public class ShaderProgram implements Deletable {
 	}
 
 	@Override
+	public void create() {
+		program = ARBShaderObjects.glCreateProgramObjectARB();
+	}
+	
+	@Override
 	public void delete() {
 		GL20.glDeleteProgram(program);
 	}
+
+	
 	
 }

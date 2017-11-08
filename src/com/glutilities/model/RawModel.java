@@ -2,7 +2,7 @@ package com.glutilities.model;
 
 import org.lwjgl.opengl.GL11;
 
-public class Model {
+public class RawModel {
 
 	private final String modelName;
 	private final float[] vertices;
@@ -11,7 +11,7 @@ public class Model {
 	private int[] draworder;
 	private final ModelMaterial[] materials;
 
-	public Model(String modelName, float[] vertices, float[] normals, float[] texcoords, int[] draworder, ModelMaterial[] materials) {
+	public RawModel(String modelName, float[] vertices, float[] normals, float[] texcoords, int[] draworder, ModelMaterial[] materials) {
 		this.modelName = modelName;
 		this.vertices = vertices;
 		this.normals = normals;

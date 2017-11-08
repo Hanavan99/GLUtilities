@@ -4,7 +4,8 @@ import java.io.File;
 
 import com.glutilities.resource.ResourceManager;
 
-public class ModelManager extends ResourceManager<Model, String, File> {
+@Deprecated
+public class ModelManager extends ResourceManager<RawModel, String, File> {
 
 	public ModelManager() {
 		super(new ModelLoader());

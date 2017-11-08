@@ -9,7 +9,7 @@ import org.lwjgl.glfw.GLFWWindowSizeCallbackI;
 import org.lwjgl.opengl.GL;
 import org.lwjgl.opengl.GL11;
 
-import com.glutilities.core.Deletable;
+import com.glutilities.core.Reusable;
 import com.glutilities.shader.ShaderProgram;
 import com.glutilities.ui.fbo.Framebuffer;
 import com.glutilities.ui.scene.Scene;
@@ -20,12 +20,32 @@ import com.glutilities.ui.scene.SceneProjection;
  * 
  * @author Hanavan99
  */
-public class GLWindow implements Deletable {
+public class GLWindow implements Reusable {
 
 	/**
 	 * The window ID used by GLFW.
 	 */
-	private final long window;
+	private long window;
+
+	/**
+	 * The width of the window.
+	 */
+	private int width;
+
+	/**
+	 * The height of the window.
+	 */
+	private int height;
+
+	/**
+	 * The title of the window.
+	 */
+	private String title;
+
+	/**
+	 * The ID of the monitor to place the window on.
+	 */
+	private long monitor;
 
 	/**
 	 * The list of renderers that are used to render the game.
@@ -48,6 +68,12 @@ public class GLWindow implements Deletable {
 	private boolean vsync = true;
 
 	private Framebuffer framebuffer;
+
+	/**
+	 * Keeps track of the total frames drawn since the last
+	 * {@code resetFrameCounter()} call. When the window is created, this value
+	 * 0.
+	 */
 	private int frameCounter = 0;
 
 	/**
@@ -63,20 +89,11 @@ public class GLWindow implements Deletable {
 	 *            mode. If 0, puts the window in windowed mode.
 	 */
 	public GLWindow(int width, int height, String title, long monitor, Scene scene) {
-		window = GLFW.glfwCreateWindow(width, height, title, monitor, 0);
-		GLFW.glfwMakeContextCurrent(window);
-		GLFW.glfwShowWindow(window);
+		this.width = width;
+		this.height = height;
+		this.title = title;
+		this.monitor = monitor;
 		this.scene = scene;
-
-		GLFW.glfwSetWindowSizeCallback(window, GLFWWindowSizeCallback.create(new GLFWWindowSizeCallbackI() {
-			@Override
-			public void invoke(long window, int width, int height) {
-				if (scene.shouldDrawToTexture()) {
-					framebuffer.delete();
-					framebuffer.create(width, height);
-				}
-			}
-		}));
 	}
 
 	/**
@@ -113,14 +130,13 @@ public class GLWindow implements Deletable {
 			final int height = windowSize[1];
 			final float aspect = (float) width / height;
 
-			// GL11.glEnable(GL11.GL_TEXTURE_2D);
-
 			if (scene != null) {
 				if (scene.shouldDrawToTexture()) {
 					framebuffer.bind();
 				}
 
 				GL11.glClear(GL11.GL_COLOR_BUFFER_BIT | GL11.GL_DEPTH_BUFFER_BIT);
+				GL11.glViewport(0, 0, width, height);
 
 				SceneProjection ortho = scene.getOrthographicProjection();
 				if (ortho != null) {
@@ -328,6 +344,23 @@ public class GLWindow implements Deletable {
 	 */
 	public void makeContextCurrent() {
 		GLFW.glfwMakeContextCurrent(window);
+	}
+
+	@Override
+	public void create() {
+		window = GLFW.glfwCreateWindow(width, height, title, monitor, 0);
+		GLFW.glfwMakeContextCurrent(window);
+		GLFW.glfwShowWindow(window);
+		GLFW.glfwSetWindowSizeCallback(window, GLFWWindowSizeCallback.create(new GLFWWindowSizeCallbackI() {
+			@Override
+			public void invoke(long window, int width, int height) {
+				if (scene.shouldDrawToTexture()) {
+					framebuffer.delete();
+					framebuffer.setSize(width, height);
+					framebuffer.create();
+				}
+			}
+		}));
 	}
 
 	@Override

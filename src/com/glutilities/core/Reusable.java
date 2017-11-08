@@ -6,7 +6,13 @@ package com.glutilities.core;
  * 
  * @author Hanavan99
  */
-public interface Deletable {
+public interface Reusable {
+
+	/**
+	 * Creates any resources that will be used by the object with the ability to
+	 * delete or free the resources later.
+	 */
+	public void create();
 
 	/**
 	 * Deletes any resources used by the object, allowing for later reuse.

@@ -42,12 +42,17 @@ public class Glyph {
 		double lastx = 0;
 		double lasty = 0;
 		int i = 0;
+
+		GL11.glColor3d(1, 1, 1);
 		GL11.glBegin(GL11.GL_LINES);
 		while (i < xPoints.length) {
 			switch (flags[i]) {
 			case PathIterator.SEG_CLOSE:
+				
 				GL11.glVertex2d(lastx, lasty);
+				
 				GL11.glVertex2d(dx, dy);
+
 				i++;
 				break;
 			case PathIterator.SEG_CUBICTO:

@@ -1,10 +1,12 @@
 package com.glutilities.text;
 
+import java.awt.Font;
+
 import org.lwjgl.opengl.GL11;
 
 import com.glutilities.resource.ResourceManager;
 
-public class FontManager extends ResourceManager<Charset, String, String> {
+public class FontManager extends ResourceManager<Charset, String, Font> {
 
 	public FontManager() {
 		super(new FontLoader());
@@ -19,9 +21,13 @@ public class FontManager extends ResourceManager<Charset, String, String> {
 		
 		for (char c : data) {
 			GL11.glTranslated(dx, 0, 0);
-			Glyph g = charset.getGlyphForChar(c);
+			NewGlyph g = charset.getGlyphForChar(c);
 			g.draw();
-			dx = g.getWidth() + kerning;
+			//if (c == ' ') {
+			//	dx = 5;
+			//} else {
+				dx = g.getWidth() + kerning;
+			//}
 		}
 		GL11.glPopMatrix();
 	}

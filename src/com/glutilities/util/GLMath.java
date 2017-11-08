@@ -39,6 +39,14 @@ public class GLMath {
 		result[1] = cpy * nt * nt + 2 * y1 * nt * t + y2 * t * t;
 		return result;
 	}
+	
+	public static float[] quadBezier(float cpx, float cpy, float x1, float y1, float x2, float y2, float t) {
+		float[] result = new float[2];
+		float nt = 1 - t;
+		result[0] = cpx * nt * nt + 2 * x1 * nt * t + x2 * t * t;
+		result[1] = cpy * nt * nt + 2 * y1 * nt * t + y2 * t * t;
+		return result;
+	}
 
 	/**
 	 * Generates the numbers of level n of Pascal's Triangle.

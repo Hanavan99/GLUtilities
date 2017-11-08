@@ -3,9 +3,9 @@ package com.glutilities.text;
 public class Charset {
 
 	private String name;
-	private Glyph[] glyphs;
+	private NewGlyph[] glyphs;
 
-	public Charset(String name, Glyph[] glyphs) {
+	public Charset(String name, NewGlyph[] glyphs) {
 		this.name = name;
 		this.glyphs = glyphs;
 	}
@@ -14,12 +14,12 @@ public class Charset {
 		return name;
 	}
 
-	public Glyph[] getGlyphs() {
+	public NewGlyph[] getNewGlyphs() {
 		return glyphs;
 	}
 
-	public Glyph getGlyphForChar(char c) {
-		for (Glyph glyph : glyphs) {
+	public NewGlyph getGlyphForChar(char c) {
+		for (NewGlyph glyph : glyphs) {
 			if (glyph.getCharacter() == c) {
 				return glyph;
 			}

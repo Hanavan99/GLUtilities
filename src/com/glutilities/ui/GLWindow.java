@@ -1,19 +1,14 @@
 package com.glutilities.ui;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import org.lwjgl.glfw.GLFW;
+import org.lwjgl.glfw.GLFWKeyCallback;
+import org.lwjgl.glfw.GLFWKeyCallbackI;
 import org.lwjgl.glfw.GLFWWindowSizeCallback;
 import org.lwjgl.glfw.GLFWWindowSizeCallbackI;
 import org.lwjgl.opengl.GL;
 import org.lwjgl.opengl.GL11;
 
 import com.glutilities.core.Reusable;
-import com.glutilities.shader.ShaderProgram;
-import com.glutilities.ui.fbo.Framebuffer;
-import com.glutilities.ui.scene.Scene;
-import com.glutilities.ui.scene.SceneProjection;
 
 /**
  * A GLFW window with an OpenGL context that can be used to render the game.
@@ -48,26 +43,9 @@ public class GLWindow implements Reusable {
 	private long monitor;
 
 	/**
-	 * The list of renderers that are used to render the game.
-	 */
-	private List<Renderer> renderers = new ArrayList<Renderer>();
-
-	/**
-	 * The shader program to use for post-processing and other effects.
-	 */
-	private ShaderProgram program;
-
-	/**
-	 * The scene used to set up the modelview and projection matrices.
-	 */
-	private Scene scene;
-
-	/**
 	 * True if this OpenGL context should use vsync to prevent screen tearing.
 	 */
 	private boolean vsync = true;
-
-	private Framebuffer framebuffer;
 
 	/**
 	 * Keeps track of the total frames drawn since the last
@@ -75,6 +53,8 @@ public class GLWindow implements Reusable {
 	 * 0.
 	 */
 	private int frameCounter = 0;
+
+	private MasterRenderer renderer;
 
 	/**
 	 * Creates a new window with the specified dimensions, title, and monitor to
@@ -88,12 +68,11 @@ public class GLWindow implements Reusable {
 	 * @param monitor the monitor on which to place the window in fullscreen
 	 *            mode. If 0, puts the window in windowed mode.
 	 */
-	public GLWindow(int width, int height, String title, long monitor, Scene scene) {
+	public GLWindow(int width, int height, String title, long monitor) {
 		this.width = width;
 		this.height = height;
 		this.title = title;
 		this.monitor = monitor;
-		this.scene = scene;
 	}
 
 	/**
@@ -101,9 +80,6 @@ public class GLWindow implements Reusable {
 	 */
 	public void init() {
 		GL.createCapabilities();
-
-		framebuffer = new Framebuffer(getWindowWidth(), getWindowHeight());
-		framebuffer.unbind();
 
 		GL11.glEnable(GL11.GL_DEPTH_TEST);
 		GL11.glDepthFunc(GL11.GL_LEQUAL);
@@ -117,7 +93,7 @@ public class GLWindow implements Reusable {
 		GL11.glColorMaterial(GL11.GL_FRONT, GL11.GL_AMBIENT_AND_DIFFUSE);
 
 		GL11.glClearColor(0, 0, 0, 1);
-
+		renderer.init(this);
 	}
 
 	/**
@@ -125,66 +101,8 @@ public class GLWindow implements Reusable {
 	 */
 	public void loop() {
 		while (!GLFW.glfwWindowShouldClose(window)) {
-			final int[] windowSize = getWindowSize();
-			final int width = windowSize[0];
-			final int height = windowSize[1];
-			final float aspect = (float) width / height;
 
-			if (scene != null) {
-				if (scene.shouldDrawToTexture()) {
-					framebuffer.bind();
-				}
-
-				GL11.glClear(GL11.GL_COLOR_BUFFER_BIT | GL11.GL_DEPTH_BUFFER_BIT);
-				GL11.glViewport(0, 0, width, height);
-
-				SceneProjection ortho = scene.getOrthographicProjection();
-				if (ortho != null) {
-					ortho.setupProjectionMatrix(width, height, aspect);
-					GL11.glMatrixMode(GL11.GL_MODELVIEW);
-					GL11.glLoadIdentity();
-					GL11.glPushMatrix();
-					renderOrtho();
-					GL11.glPopMatrix();
-				}
-
-				SceneProjection perspective = scene.getPerspectiveProjection();
-				if (perspective != null) {
-					perspective.setupProjectionMatrix(width, height, aspect);
-					GL11.glMatrixMode(GL11.GL_MODELVIEW);
-					GL11.glLoadIdentity();
-					GL11.glPushMatrix();
-					renderPerspective();
-					GL11.glPopMatrix();
-				}
-
-				if (scene.shouldDrawToTexture()) {
-					framebuffer.unbind();
-
-					if (program != null) {
-						program.enable();
-					}
-
-					GL11.glClear(GL11.GL_COLOR_BUFFER_BIT | GL11.GL_DEPTH_BUFFER_BIT);
-					GL11.glClearColor(0, 0, 0, 1);
-					GL11.glViewport(0, 0, width, height);
-
-					GL11.glMatrixMode(GL11.GL_PROJECTION);
-					GL11.glLoadIdentity();
-					GL11.glOrtho(0, 1, 0, 1, -1, 1);
-
-					GL11.glMatrixMode(GL11.GL_MODELVIEW);
-					GL11.glLoadIdentity();
-					GL11.glPushMatrix();
-					GL11.glDisable(GL11.GL_LIGHTING);
-					framebuffer.renderToQuad();
-					GL11.glPopMatrix();
-
-					if (program != null) {
-						program.disable();
-					}
-				}
-			}
+			this.renderer.render(this);
 
 			GLFW.glfwPollEvents();
 			GLFW.glfwSwapInterval(vsync ? 1 : 0);
@@ -200,7 +118,7 @@ public class GLWindow implements Reusable {
 	 * @return the width of the window
 	 */
 	public int getWindowWidth() {
-		return getWindowSize()[0];
+		return width;
 	}
 
 	/**
@@ -210,7 +128,7 @@ public class GLWindow implements Reusable {
 	 * @return the height of the window
 	 */
 	public int getWindowHeight() {
-		return getWindowSize()[1];
+		return height;
 	}
 
 	/**
@@ -220,9 +138,10 @@ public class GLWindow implements Reusable {
 	 * @return the dimensions of the window
 	 */
 	public int[] getWindowSize() {
-		int[] width = new int[1], height = new int[1];
-		GLFW.glfwGetWindowSize(window, width, height);
-		return new int[] { width[0], height[0] };
+		// int[] width = new int[1], height = new int[1];
+		// GLFW.glfwGetWindowSize(window, width, height);
+		// return new int[] { width[0], height[0] };
+		return new int[] { width, height };
 	}
 
 	/**
@@ -232,8 +151,9 @@ public class GLWindow implements Reusable {
 	 * @return the aspect ratio
 	 */
 	public float getWindowAspect() {
-		int[] windowSize = getWindowSize();
-		return (float) windowSize[0] / windowSize[1];
+		// int[] windowSize = getWindowSize();
+		// return (float) windowSize[0] / windowSize[1];
+		return (float) width / height;
 	}
 
 	/**
@@ -243,6 +163,16 @@ public class GLWindow implements Reusable {
 	 */
 	public boolean getVsyncEnabled() {
 		return vsync;
+	}
+
+	/**
+	 * Gets the state of any key on the keyboard.
+	 * 
+	 * @param key the key
+	 * @return the state of the key
+	 */
+	public int getKey(int key) {
+		return GLFW.glfwGetKey(window, key);
 	}
 
 	/**
@@ -271,6 +201,9 @@ public class GLWindow implements Reusable {
 	 */
 	public void setWindowSize(int width, int height) {
 		GLFW.glfwSetWindowSize(window, width, height);
+		this.width = width;
+		this.height = height;
+		renderer.update(this);
 	}
 
 	/**
@@ -299,22 +232,16 @@ public class GLWindow implements Reusable {
 		this.vsync = vsync;
 	}
 
-	/**
-	 * Sets the post-processing shader to the provided object.
-	 * 
-	 * @param program the program
-	 */
-	public void setShaderProgram(ShaderProgram program) {
-		this.program = program;
+	public void setMasterRenderer(MasterRenderer renderer) {
+		this.renderer = renderer;
 	}
 
-	/**
-	 * Adds a renderer to the window.
-	 * 
-	 * @param r the renderer to add
-	 */
-	public void addRenderer(Renderer r) {
-		renderers.add(r);
+	public void setKeyCallback(GLFWKeyCallbackI callback) {
+		GLFW.glfwSetKeyCallback(window, GLFWKeyCallback.create(callback));
+	}
+
+	public MasterRenderer getMasterRenderer() {
+		return renderer;
 	}
 
 	/**
@@ -354,11 +281,7 @@ public class GLWindow implements Reusable {
 		GLFW.glfwSetWindowSizeCallback(window, GLFWWindowSizeCallback.create(new GLFWWindowSizeCallbackI() {
 			@Override
 			public void invoke(long window, int width, int height) {
-				if (scene.shouldDrawToTexture()) {
-					framebuffer.delete();
-					framebuffer.setSize(width, height);
-					framebuffer.create();
-				}
+				renderer.update(GLWindow.this);
 			}
 		}));
 	}
@@ -366,32 +289,6 @@ public class GLWindow implements Reusable {
 	@Override
 	public void delete() {
 		GLFW.glfwDestroyWindow(window);
-	}
-
-	/**
-	 * Renders the orthographic modelview.
-	 */
-	private void renderOrtho() {
-		for (Renderer r : renderers) {
-			if (r.getRenderMode() == Renderer.ORTHOGRAPHIC_SCENE) {
-				GL11.glPushMatrix();
-				r.render();
-				GL11.glPopMatrix();
-			}
-		}
-	}
-
-	/**
-	 * Renders the perspective modelview.
-	 */
-	private void renderPerspective() {
-		for (Renderer r : renderers) {
-			if (r.getRenderMode() == Renderer.PERSPECTIVE_SCENE) {
-				GL11.glPushMatrix();
-				r.render();
-				GL11.glPopMatrix();
-			}
-		}
 	}
 
 }

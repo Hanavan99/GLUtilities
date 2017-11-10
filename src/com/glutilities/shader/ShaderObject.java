@@ -40,17 +40,12 @@ public class ShaderObject implements Reusable {
 	 * Creates a new shader object with the specific shader type, name, and
 	 * code/program.
 	 * 
-	 * @param shaderType
-	 *            the type of shader
-	 * @param name
-	 *            the user-defined name of the shader; optional
-	 * @param code
-	 *            the code that is compiled into the shader program
+	 * @param shaderType the type of shader
+	 * @param name the user-defined name of the shader; optional
+	 * @param code the code that is compiled into the shader program
 	 */
 	public ShaderObject(int shaderType, String name, String code) {
-		if (shaderType != ARBVertexShader.GL_VERTEX_SHADER_ARB && shaderType != ARBFragmentShader.GL_FRAGMENT_SHADER_ARB
-				&& shaderType != ARBGeometryShader4.GL_GEOMETRY_SHADER_ARB
-				&& shaderType != ARBTessellationShader.GL_TESS_CONTROL_SHADER
+		if (shaderType != ARBVertexShader.GL_VERTEX_SHADER_ARB && shaderType != ARBFragmentShader.GL_FRAGMENT_SHADER_ARB && shaderType != ARBGeometryShader4.GL_GEOMETRY_SHADER_ARB && shaderType != ARBTessellationShader.GL_TESS_CONTROL_SHADER
 				&& shaderType != ARBTessellationShader.GL_TESS_EVALUATION_SHADER) {
 			throw new IllegalArgumentException("Invalid shader type");
 		}
@@ -87,12 +82,23 @@ public class ShaderObject implements Reusable {
 	}
 
 	/**
-	 * Gets the code that was compiled into the shader program.
+	 * Gets the code that was linked to the shader program.
 	 * 
 	 * @return the code
 	 */
-	public String getShader() {
+	public String getCode() {
 		return code;
+	}
+
+	/**
+	 * Sets the code that will be linked to the shader program. If the program
+	 * is linked before this field is updated, the program has to be re-linked
+	 * to update it.
+	 * 
+	 * @param code the code
+	 */
+	public void setCode(String code) {
+		this.code = code;
 	}
 
 	@Override

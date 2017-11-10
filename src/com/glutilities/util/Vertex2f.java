@@ -1,16 +1,16 @@
 package com.glutilities.util;
 
-public class Vertex2 {
+public class Vertex2f {
 
 	protected double x;
 	protected double y;
 
-	public Vertex2(double x, double y) {
+	public Vertex2f(double x, double y) {
 		this.x = x;
 		this.y = y;
 	}
 
-	public void add(Vertex2 v) {
+	public void add(Vertex2f v) {
 		x += v.x;
 		y += v.y;
 	}
@@ -21,7 +21,7 @@ public class Vertex2 {
 		y /= scale;
 	}
 
-	public void scale(Vertex2 b) {
+	public void scale(Vertex2f b) {
 		x *= b.x;
 		y *= b.y;
 	}
@@ -65,8 +65,8 @@ public class Vertex2 {
 		this.y = y;
 	}
 
-	public Vertex3 toVertex3() {
-		return new Vertex3(x, y, 0);
+	public Vertex3f toVertex3() {
+		return new Vertex3f(x, y, 0);
 	}
 
 }

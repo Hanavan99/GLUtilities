@@ -155,7 +155,7 @@ public class FontLoader extends ResourceLoader<Charset, String, Font> {
 				abscoords.add(dx);
 				abscoords.add(dy);
 				abscoords.add(0f);
-				VBO vbo = new VBO(Converter.toPrimitiveArray(abscoords.toArray(new Float[0])), null, null, null, null, GL11.GL_LINES);
+				VBO vbo = new VBO(buildMesh(Converter.toPrimitiveArray(abscoords.toArray(new Float[0]))), null, null, null, null, GL11.GL_LINES);
 				vbo.create();
 				vbos.add(vbo);
 				abscoords.clear();
@@ -201,6 +201,14 @@ public class FontLoader extends ResourceLoader<Charset, String, Font> {
 			}
 		}
 		return new NewGlyph(c, width, height, vbos.toArray(new VBO[0]));
+	}
+	
+	private float[] buildMesh(float[] vertices) {
+		List<Float> mesh = new ArrayList<Float>();
+		for (int i = 0; i < vertices.length; i++) {
+			mesh.add(vertices[i]);
+		}
+		return Converter.toPrimitiveArray(mesh.toArray(new Float[0]));
 	}
 
 	@Override

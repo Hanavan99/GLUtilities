@@ -1,15 +1,15 @@
 package com.glutilities.util;
 
-public class Vertex3 extends Vertex2 {
+public class Vertex3f extends Vertex2f {
 
 	private double z;
 
-	public Vertex3(double x, double y, double z) {
+	public Vertex3f(double x, double y, double z) {
 		super(x, y);
 		this.z = z;
 	}
 
-	public void add(Vertex3 v) {
+	public void add(Vertex3f v) {
 		super.add(v);
 		z += v.z;
 	}
@@ -22,7 +22,7 @@ public class Vertex3 extends Vertex2 {
 		z /= scale;
 	}
 
-	public void crossProduct(Vertex3 b) {
+	public void crossProduct(Vertex3f b) {
 		double _x = y * b.z - z * b.y;
 		double _y = z * b.x - x * b.x;
 		double _z = x * b.y - y * b.x;
@@ -31,7 +31,7 @@ public class Vertex3 extends Vertex2 {
 		z = _z;
 	}
 	
-	public void scale(Vertex3 b) {
+	public void scale(Vertex3f b) {
 		super.scale(b);
 		z *= b.z;
 	}
@@ -91,8 +91,8 @@ public class Vertex3 extends Vertex2 {
 		this.z = z;
 	}
 	
-	public Vertex2 toVertex2() {
-		return new Vertex2(x, y);
+	public Vertex2f toVertex2() {
+		return new Vertex2f(x, y);
 	}
 
 }

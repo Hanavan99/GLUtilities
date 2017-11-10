@@ -49,4 +49,12 @@ public class Converter {
 		return result;
 	}
 
+	public static Float[] toObjectArray(float[] array) {
+		Float[] result = new Float[array.length];
+		for (int i = 0; i < result.length; i++) {
+			result[i] = array[i];
+		}
+		return result;
+	}
+
 }

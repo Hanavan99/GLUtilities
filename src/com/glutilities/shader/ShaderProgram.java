@@ -9,6 +9,7 @@ import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL20;
 
 import com.glutilities.core.Reusable;
+import com.glutilities.util.matrix.Matrix4f;
 
 /**
  * Represents a shader program which consists of any combination of a vertex
@@ -117,15 +118,30 @@ public class ShaderProgram implements Reusable {
 		for (int i = 0; i < shaderObjects.length; i++) {
 			ShaderObject object = shaderObjects[i];
 			if (object != null) {
-				if (object.getShaderType() != shaderTypes[i])
-				ARBShaderObjects.glShaderSourceARB(object.getShaderID(), object.getShader());
+				if (object.getShaderType() == shaderTypes[i]) {
+				ARBShaderObjects.glShaderSourceARB(object.getShaderID(), object.getCode());
 				ARBShaderObjects.glCompileShaderARB(object.getShaderID());
 				ARBShaderObjects.glAttachObjectARB(program, object.getShaderID());
+				} else {
+					throw new IllegalArgumentException("Specified shader is not of correct type");
+				}
 			}
 		}
 
 		ARBShaderObjects.glLinkProgramARB(program);
 		error = ARBShaderObjects.glGetInfoLogARB(program);
+	}
+	
+	private int glGetUniformLocation(String name) {
+		return GL20.glGetUniformLocation(program, name);
+	}
+	
+	public void glUniform1i(String name, int i) {
+		GL20.glUniform1i(glGetUniformLocation(name), i);
+	}
+	
+	public void glUniformMatrix4f(String name, boolean transpose, Matrix4f mat4) {
+		GL20.glUniformMatrix4fv(glGetUniformLocation(name), transpose, mat4.getMatrix());
 	}
 
 	/**
@@ -148,6 +164,11 @@ public class ShaderProgram implements Reusable {
 	@Override
 	public void create() {
 		program = ARBShaderObjects.glCreateProgramObjectARB();
+		//GL20.glBindAttribLocation(program, 0, "position");
+		//GL20.glBindAttribLocation(program, 1, "color");
+		//GL20.glBindAttribLocation(program, 2, "normal");
+		//GL20.glBindAttribLocation(program, 3, "texcoords");
+		
 	}
 
 	@Override

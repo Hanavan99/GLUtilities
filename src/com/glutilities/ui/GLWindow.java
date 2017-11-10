@@ -49,8 +49,7 @@ public class GLWindow implements Reusable {
 
 	/**
 	 * Keeps track of the total frames drawn since the last
-	 * {@code resetFrameCounter()} call. When the window is created, this value
-	 * 0.
+	 * {@code resetFrameCounter()} call. When the window is created, this value 0.
 	 */
 	private int frameCounter = 0;
 
@@ -58,15 +57,19 @@ public class GLWindow implements Reusable {
 
 	/**
 	 * Creates a new window with the specified dimensions, title, and monitor to
-	 * render on. If monitor is 0, the width and height attributes describe the
-	 * size of the window. If monitor is a valid identifier, width and height
-	 * describe the window resolution.
+	 * render on. If monitor is 0, the width and height attributes describe the size
+	 * of the window. If monitor is a valid identifier, width and height describe
+	 * the window resolution.
 	 * 
-	 * @param width the width of the window in pixels
-	 * @param height the height of the window in pixels
-	 * @param title the title of the window
-	 * @param monitor the monitor on which to place the window in fullscreen
-	 *            mode. If 0, puts the window in windowed mode.
+	 * @param width
+	 *            the width of the window in pixels
+	 * @param height
+	 *            the height of the window in pixels
+	 * @param title
+	 *            the title of the window
+	 * @param monitor
+	 *            the monitor on which to place the window in fullscreen mode. If 0,
+	 *            puts the window in windowed mode.
 	 */
 	public GLWindow(int width, int height, String title, long monitor) {
 		this.width = width;
@@ -93,7 +96,9 @@ public class GLWindow implements Reusable {
 		GL11.glColorMaterial(GL11.GL_FRONT, GL11.GL_AMBIENT_AND_DIFFUSE);
 
 		GL11.glClearColor(0, 0, 0, 1);
-		renderer.init(this);
+		if (renderer != null) {
+			renderer.init(this);
+		}
 	}
 
 	/**
@@ -102,7 +107,9 @@ public class GLWindow implements Reusable {
 	public void loop() {
 		while (!GLFW.glfwWindowShouldClose(window)) {
 
-			this.renderer.render(this);
+			if (renderer != null) {
+				this.renderer.render(this);
+			}
 
 			GLFW.glfwPollEvents();
 			GLFW.glfwSwapInterval(vsync ? 1 : 0);
@@ -132,8 +139,8 @@ public class GLWindow implements Reusable {
 	}
 
 	/**
-	 * Gets the size of the window in pixels. Index 0 of the resulting array is
-	 * the width, and the index 1 is the height.
+	 * Gets the size of the window in pixels. Index 0 of the resulting array is the
+	 * width, and the index 1 is the height.
 	 * 
 	 * @return the dimensions of the window
 	 */
@@ -145,8 +152,7 @@ public class GLWindow implements Reusable {
 	}
 
 	/**
-	 * Gets the aspect ratio of the window; shorthand for
-	 * {@code width / height}.
+	 * Gets the aspect ratio of the window; shorthand for {@code width / height}.
 	 * 
 	 * @return the aspect ratio
 	 */
@@ -168,7 +174,8 @@ public class GLWindow implements Reusable {
 	/**
 	 * Gets the state of any key on the keyboard.
 	 * 
-	 * @param key the key
+	 * @param key
+	 *            the key
 	 * @return the state of the key
 	 */
 	public int getKey(int key) {
@@ -178,7 +185,8 @@ public class GLWindow implements Reusable {
 	/**
 	 * Sets the width of the window, without changing the height.
 	 * 
-	 * @param width the width in pixels
+	 * @param width
+	 *            the width in pixels
 	 */
 	public void setWindowWidth(int width) {
 		setWindowSize(width, getWindowHeight());
@@ -187,7 +195,8 @@ public class GLWindow implements Reusable {
 	/**
 	 * Sets the height of the window, without changing the width.
 	 * 
-	 * @param height the height in pixels
+	 * @param height
+	 *            the height in pixels
 	 */
 	public void setWindowHeight(int height) {
 		setWindowSize(getWindowWidth(), height);
@@ -196,22 +205,27 @@ public class GLWindow implements Reusable {
 	/**
 	 * Sets the window size in pixels.
 	 * 
-	 * @param width the width of the window
-	 * @param height the height of the window
+	 * @param width
+	 *            the width of the window
+	 * @param height
+	 *            the height of the window
 	 */
 	public void setWindowSize(int width, int height) {
 		GLFW.glfwSetWindowSize(window, width, height);
 		this.width = width;
 		this.height = height;
-		renderer.update(this);
+		if (renderer != null) {
+			renderer.update(this);
+		}
 	}
 
 	/**
-	 * Sets the window size in pixels. The array must have at least 2 items, and
-	 * if there are more, they are ignored. Index 0 is the width, and index 1 is
-	 * the height.
+	 * Sets the window size in pixels. The array must have at least 2 items, and if
+	 * there are more, they are ignored. Index 0 is the width, and index 1 is the
+	 * height.
 	 * 
-	 * @param size the dimensions of the window
+	 * @param size
+	 *            the dimensions of the window
 	 */
 	public void setWindowSize(int[] size) {
 		if (size.length >= 2) {
@@ -220,13 +234,14 @@ public class GLWindow implements Reusable {
 	}
 
 	/**
-	 * Enables vsync on the window. If enabled, the window will not try to
-	 * render another frame until the previous one has been drawn on the screen.
-	 * This means that the framerate of the window is capped at the refresh rate
-	 * of the monitor. If disabled, the window will render frames as fast as
-	 * possible. By default, vsync is on.
+	 * Enables vsync on the window. If enabled, the window will not try to render
+	 * another frame until the previous one has been drawn on the screen. This means
+	 * that the framerate of the window is capped at the refresh rate of the
+	 * monitor. If disabled, the window will render frames as fast as possible. By
+	 * default, vsync is on.
 	 * 
-	 * @param vsync true to enable; false to disable
+	 * @param vsync
+	 *            true to enable; false to disable
 	 */
 	public void setVsyncEnabled(boolean vsync) {
 		this.vsync = vsync;
@@ -255,8 +270,8 @@ public class GLWindow implements Reusable {
 	}
 
 	/**
-	 * Gets the number of frames drawn since the last call to this method and
-	 * resets the counter.
+	 * Gets the number of frames drawn since the last call to this method and resets
+	 * the counter.
 	 * 
 	 * @return the number of previous frames drawn
 	 */
@@ -281,7 +296,9 @@ public class GLWindow implements Reusable {
 		GLFW.glfwSetWindowSizeCallback(window, GLFWWindowSizeCallback.create(new GLFWWindowSizeCallbackI() {
 			@Override
 			public void invoke(long window, int width, int height) {
-				renderer.update(GLWindow.this);
+				if (renderer != null) {
+					renderer.update(GLWindow.this);
+				}
 			}
 		}));
 	}

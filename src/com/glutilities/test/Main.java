@@ -20,8 +20,6 @@ import com.glutilities.terrain.PerlinGenerator;
 import com.glutilities.text.FontManager;
 import com.glutilities.ui.GLWindow;
 import com.glutilities.ui.MasterRenderer;
-import com.glutilities.ui.RenderPipeline;
-import com.glutilities.ui.Renderer;
 import com.glutilities.ui.fbo.Framebuffer;
 import com.glutilities.ui.scene.OrthographicProjection;
 import com.glutilities.ui.scene.PerspectiveProjection;
@@ -94,26 +92,30 @@ public class Main {
 
 		// Create a model manager to load models
 		BufferedModelManager mm = new BufferedModelManager();
-		mm.load(new File("C:/Users/Hanavan/Desktop/testres/models/car2.obj"), "test");
+		//mm.load(new File("C:/Users/Hanavan/Desktop/testres/models/car2.obj"), "test");
 
 		// Create a font manager to load fonts
 		FontManager fm = new FontManager();
 		fm.load(new Font("Arial", Font.PLAIN, 12), "test");
 
 		// Create a shader program
-		ShaderObject vertex = new ShaderObject(ARBVertexShader.GL_VERTEX_SHADER_ARB, "testv", loadFile(new File("C:/Users/Hanavan/Desktop/test.vsh")));
-		vertex.create();
-		ShaderObject fragment = new ShaderObject(ARBFragmentShader.GL_FRAGMENT_SHADER_ARB, "testf", loadFile(new File("C:/Users/Hanavan/Desktop/test.fsh")));
-		fragment.create();
-		ShaderProgram program = new ShaderProgram(vertex, fragment, null, null, null);
-		program.create();
-		program.link();
-		System.out.println(program.isLinked() + ": " + program.getError());
+//		ShaderObject vertex = new ShaderObject(ARBVertexShader.GL_VERTEX_SHADER_ARB, "testv", loadFile(new File("C:/Users/Hanavan/Desktop/test.vsh")));
+//		vertex.create();
+//		ShaderObject fragment = new ShaderObject(ARBFragmentShader.GL_FRAGMENT_SHADER_ARB, "testf", loadFile(new File("C:/Users/Hanavan/Desktop/test.fsh")));
+//		fragment.create();
+//		ShaderProgram program = new ShaderProgram(vertex, fragment, null, null, null);
+//		program.create();
+//		program.link();
+//		System.out.println(program.isLinked() + ": " + program.getError());
 
 		MasterRenderer renderer = new MasterRenderer() {
 			@Override
 			public void render(GLWindow parent) {
-				
+				ortho.setupProjectionMatrix(100, 100, 1);
+				float[] fmat = new float[16];
+				GL11.glGetFloatv(GL11.GL_PROJECTION_MATRIX, fmat);
+				Matrix4f mat = new Matrix4f(fmat); 
+				System.out.println(mat);
 			}
 		};
 		
@@ -214,10 +216,10 @@ public class Main {
 				if (action == GLFW.GLFW_PRESS) {
 					switch (key) {
 					case GLFW.GLFW_KEY_R:
-						vertex.setCode(loadFile(new File("C:/Users/Hanavan/Desktop/test.vsh")));
-						fragment.setCode(loadFile(new File("C:/Users/Hanavan/Desktop/test.fsh")));
-						program.link();
-						System.out.println("Shader Linked\n" + program.getError());
+						//vertex.setCode(loadFile(new File("C:/Users/Hanavan/Desktop/test.vsh")));
+						//fragment.setCode(loadFile(new File("C:/Users/Hanavan/Desktop/test.fsh")));
+						//program.link();
+						//System.out.println("Shader Linked\n" + program.getError());
 						break;
 					}
 				}

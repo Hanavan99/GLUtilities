@@ -41,6 +41,13 @@ public abstract class Matrixf<E> {
 		}
 		throw new IllegalArgumentException("Matrix element row=" + row + " col=" + col + " does not exist in matrix");
 	}
+	
+	public void set(int row, int col, float value) {
+		if (row >= 0 && col >= 0 && row < size && col < size) {
+			matrix[row * size + col] = value;
+		}
+		throw new IllegalArgumentException("Matrix element row=" + row + " col=" + col + " does not exist in matrix");
+	}
 
 	public void glLoadMatrixf() {
 		GL11.glLoadMatrixf(matrix);

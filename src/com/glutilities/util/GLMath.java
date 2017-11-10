@@ -2,6 +2,8 @@ package com.glutilities.util;
 
 import org.lwjgl.opengl.GL11;
 
+import com.glutilities.util.matrix.Matrix4f;
+
 public class GLMath {
 
 	/**
@@ -83,6 +85,36 @@ public class GLMath {
 		double fh = Math.tan(fovy / 360 * Math.PI) * znear;
 		double fw = fh * aspect;
 		GL11.glFrustum(-fw, fw, -fh, fh, znear, zfar);
+	}
+	
+	public static Matrix4f createPerspectiveMatrix(float fov, float aspect, float near, float far) {
+		float fh = (float) Math.tan(fov / 360 * Math.PI) * near;
+		float fw = fh * aspect;
+		float l = -fw / 2;
+		float r = fw / 2;
+		float t = fw / 2;
+		float b = -fw / 2;
+		float[] matrix = new float[16];
+		matrix[0] = 2 * near / (r - l);
+		matrix[2] = (r + l) / (r - l);
+		matrix[5] = 2 * near / (t - b);
+		matrix[6] = (t + b) / (t - b);
+		matrix[10] = -(far + near) / (far - near);
+		matrix[11] = 2 * far * near / (far - near);
+		matrix[14] = -1;
+		return new Matrix4f(matrix);
+	}
+	
+	public static Matrix4f createOrthographicMatrix(float l, float r, float b, float t, float n, float f)
+	{
+	    float[] matrix = new float[16];
+	    matrix[0]  =  2 / (r - l);
+	    matrix[5]  =  2 / (t - b);
+	    matrix[10] = -2 / (f - n);
+	    matrix[12] = -(r + l) / (r - l);
+	    matrix[13] = -(t + b) / (t - b);
+	    matrix[14] = -(f + n) / (f - n);
+	    return new Matrix4f(matrix);
 	}
 
 }

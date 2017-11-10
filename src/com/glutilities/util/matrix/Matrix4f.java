@@ -2,6 +2,8 @@ package com.glutilities.util.matrix;
 
 public class Matrix4f extends Matrixf<Matrix4f> {
 
+	public static final Matrix4f IDENTITY_MATRIX = new Matrix4f(new float[] { 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1 });
+
 	public Matrix4f() {
 		super(4);
 	}

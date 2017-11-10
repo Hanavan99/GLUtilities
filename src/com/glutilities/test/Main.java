@@ -26,6 +26,7 @@ import com.glutilities.ui.fbo.Framebuffer;
 import com.glutilities.ui.scene.OrthographicProjection;
 import com.glutilities.ui.scene.PerspectiveProjection;
 import com.glutilities.ui.scene.SceneProjection;
+import com.glutilities.util.GLMath;
 import com.glutilities.util.Vertex3f;
 import com.glutilities.util.matrix.Matrix4f;
 
@@ -37,8 +38,7 @@ public class Main {
 
 	public static void main(String[] args) {
 
-		Matrix4f mat = new Matrix4f();
-		System.out.println(mat);
+		Matrix4f projMat = new Matrix4f();
 
 		// Initialize GLFW
 		GLFW.glfwInit();
@@ -109,11 +109,19 @@ public class Main {
 		program.create();
 		program.link();
 		System.out.println(program.isLinked() + ": " + program.getError());
+		program.glUniformMatrix4f("modelviewMatrix", false, Matrix4f.IDENTITY_MATRIX);
 
 		MasterRenderer renderer = new MasterRenderer() {
 			@Override
 			public void render(GLWindow parent) {
 				
+			}
+			
+			@Override
+			public void update(GLWindow parent) {
+				//Matrix4f projMat = GLMath.createPerspectiveMatrix(80f, parent.getWindowAspect(), 0.1f, 100f);
+				Matrix4f projMat = GLMath.createOrthographicMatrix(0, 1, 0, 1, -1, 1);
+				program.glUniformMatrix4f("projectionMatrix", false, projMat);
 			}
 		};
 		

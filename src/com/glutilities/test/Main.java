@@ -27,6 +27,7 @@ import com.glutilities.ui.scene.SceneProjection;
 import com.glutilities.util.GLMath;
 import com.glutilities.util.Vertex3f;
 import com.glutilities.util.matrix.Matrix4f;
+import com.glutilities.util.matrix.MatrixMath;
 
 public class Main {
 
@@ -84,7 +85,7 @@ public class Main {
 
 		// Create a model manager to load models
 		BufferedModelManager mm = new BufferedModelManager();
-		mm.load(new File("C:/Users/Hanavan/Desktop/testres/models/car2.obj"), "test");
+		mm.load(new File("res/models/car2.obj"), "test");
 
 		// Create a font manager to load fonts
 		FontManager fm = new FontManager();
@@ -93,28 +94,34 @@ public class Main {
 		// Create a shader program
 
 		ShaderObject vertex = new ShaderObject(ARBVertexShader.GL_VERTEX_SHADER_ARB, "testv", null);
-		ShaderObject fragment = null;// new
-										// ShaderObject(ARBFragmentShader.GL_FRAGMENT_SHADER_ARB,
-										// "testf", null);
+		ShaderObject fragment = new ShaderObject(ARBFragmentShader.GL_FRAGMENT_SHADER_ARB, "testf", null);
 		updateShaderCode(vertex, fragment);
 		vertex.create();
-		// fragment.create();
+		fragment.create();
 		ShaderProgram program = new ShaderProgram(vertex, fragment, null, null, null);
 		program.create();
 		program.link();
 		System.out.println(program.isLinked() + ": " + program.getError());
 		// program.glUniformMatrix4f("modelviewMatrix", false,
 		// Matrix4f.IDENTITY_MATRIX);
-		Matrix4f projMat = GLMath.createOrthographicMatrix(-1, 1, 1, -1, -1, 1);
-		// Matrix4f projMat = GLMath.createPerspectiveMatrix(0.1f,
-		// window.getWindowAspect(), 0.1f, 1000f);
-		Matrix4f transMat = GLMath.createTransformationMatrix(new Vertex3f(0, 0, 0), new Vertex3f(0, 0, 0), new Vertex3f(1, 1, 1));
+		// Matrix4f projMat = GLMath.createOrthographicMatrix(-1, 1, 1, -1, -1, 1);
+		Matrix4f projMat = GLMath.createPerspectiveMatrix(80f, window.getWindowAspect(), 0.1f, 100f);
+		// Matrix4f projMat = Matrix4f.IDENTITY_MATRIX;
+		Matrix4f transMat = GLMath.createTransformationMatrix(new Vertex3f(0, 0, 0), new Vertex3f(0, 0, 0),
+				new Vertex3f(0.1f, 0.1f, 0.1f));
 		program.enable();
 		System.out.println(projMat);
-		program.glUniformMatrix4f("projectionMatrix", false, projMat);
-		program.glUniformMatrix4f("transformMatrix", false, transMat);
-		
-		System.out.println("\n" + projMat + "\n\n" + transMat);
+
+		GL11.glMatrixMode(GL11.GL_PROJECTION);
+		GL11.glLoadIdentity();
+		GLMath.createPerspective(80, window.getWindowAspect(), 0.1, 100);
+		Matrix4f proj = new Matrix4f();
+		GL11.glGetFloatv(GL11.GL_PROJECTION_MATRIX, proj.getMatrix());
+		System.out.println("\n\n" + proj);
+
+		program.glUniformMatrix4f("projectionMatrix", true, projMat);
+		program.glUniformMatrix4f("transformMatrix", true, transMat);
+
 		program.disable();
 
 		MasterRenderer renderer = new MasterRenderer() {
@@ -123,35 +130,43 @@ public class Main {
 				GL11.glClear(GL11.GL_COLOR_BUFFER_BIT | GL11.GL_DEPTH_BUFFER_BIT);
 				GL11.glViewport(0, 0, parent.getWindowWidth(), parent.getWindowHeight());
 
-				//GL11.glMatrixMode(GL11.GL_PROJECTION);
-				//GL11.glLoadIdentity();
+				// GL11.glMatrixMode(GL11.GL_PROJECTION);
+				// GL11.glLoadIdentity();
+				// GLMath.createPerspective(80, 1, 0.1, 100);
+				// Matrix4f proj = new Matrix4f();
+				// GL11.glGetFloatv(GL11.GL_PROJECTION_MATRIX, proj.getMatrix());
+				// System.out.println(proj);
+
+				// GL11.glMatrixMode(GL11.GL_PROJECTION);
+				// GL11.glLoadIdentity();
 				// GLMath.createPerspectiveMatrix(80f, parent.getWindowAspect(),
 				// 0.1f, 100f).glLoadMatrixf();
 				// GLMath.createPerspective(80, parent.getWindowAspect(), 0.1,
 				// 100);
-				//GL11.glLoadMatrixf(projMat.getMatrix());
+				// GL11.glLoadMatrixf(projMat.getMatrix());
 				// GL11.glOrtho(-1, 1, 1, -1, -1, 1);
 				// GL11.glGetFloatv(GL11.GL_PROJECTION_MATRIX,
 				// projMat.getMatrix());
 				// System.out.println(projMat);
 
-				//GL11.glMatrixMode(GL11.GL_MODELVIEW);
-				//GL11.glLoadIdentity();
-				//GL11.glPushMatrix();
+				// GL11.glMatrixMode(GL11.GL_MODELVIEW);
+				// GL11.glLoadIdentity();
+				// GL11.glPushMatrix();
 				program.enable();
 
-				// render3D(parent, mm, false);
-				render2D(parent, fm, "R: Recompile Shader");
-
-				//GL11.glPopMatrix();
+				render3D(parent, mm, program, false);
+				// render2D(parent, fm, program, "R: Recompile Shader");
+				// GL11.glPopMatrix();
 				program.disable();
 			}
 
 			@Override
 			public void update(GLWindow parent) {
-				// Matrix4f projMat = GLMath.createPerspectiveMatrix(80f,
-				// parent.getWindowAspect(), 0.1f, 100f);
-
+				System.out.println("update");
+				Matrix4f projMat = GLMath.createPerspectiveMatrix(80f,
+				parent.getWindowAspect(), 0.1f, 100f);
+				System.out.println(projMat);
+				program.glUniformMatrix4f("projectionMatrix", true, projMat);
 			}
 		};
 
@@ -258,32 +273,32 @@ public class Main {
 		return 0;
 	}
 
-	private static void render2D(GLWindow window, FontManager fm, String extraData) {
+	private static void render2D(GLWindow window, FontManager fm, ShaderProgram program, String extraData) {
 		GL11.glDisable(GL11.GL_LIGHTING);
 		GL11.glDisable(GL11.GL_LIGHT0);
-		double scale = 0.004;
-		double size = 1d / window.getWindowAspect() * scale;
-		double pos = scale * 10;
-		FontManager.drawString(fm.get("test"), fps + " FPS", 0, pos, size, window.getWindowAspect(), 0.1);
+		float scale = 0.004f;
+		float size = 1f / window.getWindowAspect() * scale;
+		float pos = scale * 10;
+		Matrix4f transform = Matrix4f.IDENTITY_MATRIX;
+		transform = MatrixMath.scale(transform, new Vertex3f(scale, scale * window.getWindowAspect(), scale));
+
+		FontManager.drawString(fm.get("test"), fps + " FPS", transform, 0.1f, program, "transformMatrix");
+		transform = MatrixMath.translate(transform, new Vertex3f(0, -0.1f, 0));
 		String[] lines = extraData.split("\n");
 		pos += scale * 10;
 		for (String line : lines) {
-			FontManager.drawString(fm.get("test"), line, 0, pos, size, window.getWindowAspect(), 0.1);
+			FontManager.drawString(fm.get("test"), line, transform, 0.1f, program, "transformMatrix");
 			pos += scale * 10;
 		}
-		GL11.glBegin(GL11.GL_LINES);
-		GL11.glVertex2d(-1, -1);
-		GL11.glVertex2d(1, 1);
-		GL11.glEnd();
 	}
 
-	private static void render3D(GLWindow window, BufferedModelManager mm, boolean eye) {
+	private static void render3D(GLWindow window, BufferedModelManager mm, ShaderProgram program, boolean eye) {
 		GL11.glEnable(GL11.GL_LIGHTING);
 		GL11.glEnable(GL11.GL_LIGHT0);
 
-		GL11.glTranslated(0, 0, -20);
-		GL11.glRotated(-60, 1, 0, 0);
-		GL11.glRotated(yaw, 0, 0, 1);
+		// GL11.glTranslated(0, 0, -20);
+		// GL11.glRotated(-60, 1, 0, 0);
+		// GL11.glRotated(yaw, 0, 0, 1);
 
 		if (window.getKey(GLFW.GLFW_KEY_LEFT) == GLFW.GLFW_PRESS) {
 			yaw += 0.05;
@@ -299,16 +314,23 @@ public class Main {
 		// GL11.glTranslated(0, Math.sin(theta) * 10 - 8, 0);
 
 		// mm.get("test").draw();
-		terrainVBO.draw();
 
-		GL11.glDisable(GL11.GL_LIGHTING);
-		GL11.glColor3d(0, 0, 1);
-		GL11.glBegin(GL11.GL_QUADS);
-		GL11.glVertex2d(-128, -128);
-		GL11.glVertex2d(-128, 128);
-		GL11.glVertex2d(128, 128);
-		GL11.glVertex2d(128, -128);
-		GL11.glEnd();
+		Matrix4f transform = Matrix4f.IDENTITY_MATRIX;
+		transform = MatrixMath.scale(transform, new Vertex3f(0.05f, 0.05f, 0.05f));
+		transform = MatrixMath.translate(transform, new Vertex3f(0, 0, -1f));
+		transform = MatrixMath.rotate(transform, new Vertex3f(yaw / 100f, 0, 0));
+		program.glUniformMatrix4f("transformMatrix", true, transform);
+
+		// terrainVBO.draw();
+		mm.get("test").draw();
+		// GL11.glDisable(GL11.GL_LIGHTING);
+		// GL11.glColor3d(0, 0, 1);
+		// GL11.glBegin(GL11.GL_QUADS);
+		// GL11.glVertex2d(-128, -128);
+		// GL11.glVertex2d(-128, 128);
+		// GL11.glVertex2d(128, 128);
+		// GL11.glVertex2d(128, -128);
+		// GL11.glEnd();
 
 	}
 

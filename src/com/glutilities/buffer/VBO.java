@@ -120,7 +120,7 @@ public class VBO implements Reusable, Bindable {
 		}
 		if (texcoords != null) {
 			ARBVertexBufferObject.glBindBufferARB(ARBVertexBufferObject.GL_ARRAY_BUFFER_ARB, vboTexcoords);
-			GL20.glVertexAttribPointer(3, 2, GL11.GL_FLOAT, false, 0, 0);
+			GL20.glVertexAttribPointer(3, 3, GL11.GL_FLOAT, false, 0, 0);
 			GL20.glEnableVertexAttribArray(3);
 		}
 		

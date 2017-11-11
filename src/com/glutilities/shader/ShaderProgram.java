@@ -132,8 +132,14 @@ public class ShaderProgram implements Reusable {
 		error = ARBShaderObjects.glGetInfoLogARB(program);
 	}
 	
-	private int glGetUniformLocation(String name) {
+	public int glGetUniformLocation(String name) {
 		return GL20.glGetUniformLocation(program, name);
+	}
+	
+	public Matrix4f glGetUniformMatrix4f(String name) {
+		Matrix4f matrix = new Matrix4f();
+		GL20.glGetUniformfv(program,glGetUniformLocation(name), matrix.getMatrix());
+		return matrix;
 	}
 	
 	public void glUniform1i(String name, int i) {

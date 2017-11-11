@@ -1,5 +1,7 @@
 package com.glutilities.util.matrix;
 
+import java.util.Arrays;
+
 public class Matrix2f extends Matrixf<Matrix2f> {
 
 	public static final Matrix2f IDENTITY_MATRIX = new Matrix2f(new float[] { 1, 0, 0, 1 });
@@ -48,6 +50,16 @@ public class Matrix2f extends Matrixf<Matrix2f> {
 			newMatrix[i] = -this.matrix[i];
 		}
 		return new Matrix2f(newMatrix);
+	}
+	
+	@Override
+	public Matrix2f set(int row, int col, float value) {
+		float[] newMatrix = Arrays.copyOf(matrix, size * size);
+		if (row >= 0 && col >= 0 && row < size && col < size) {
+			newMatrix[row * size + col] = value;
+			return new Matrix2f(newMatrix);
+		}
+		throw new IllegalArgumentException("Matrix element row=" + row + " col=" + col + " does not exist in matrix");
 	}
 
 	@Override

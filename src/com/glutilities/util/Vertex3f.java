@@ -2,9 +2,9 @@ package com.glutilities.util;
 
 public class Vertex3f extends Vertex2f {
 
-	private double z;
+	private float z;
 
-	public Vertex3f(double x, double y, double z) {
+	public Vertex3f(float x, float y, float z) {
 		super(x, y);
 		this.z = z;
 	}
@@ -16,16 +16,16 @@ public class Vertex3f extends Vertex2f {
 
 	@Override
 	public void normalize() {
-		double scale = Math.sqrt(x * x + y * y + z * z);
+		float scale = (float) Math.sqrt(x * x + y * y + z * z);
 		x /= scale;
 		y /= scale;
 		z /= scale;
 	}
 
 	public void crossProduct(Vertex3f b) {
-		double _x = y * b.z - z * b.y;
-		double _y = z * b.x - x * b.x;
-		double _z = x * b.y - y * b.x;
+		float _x = y * b.z - z * b.y;
+		float _y = z * b.x - x * b.x;
+		float _z = x * b.y - y * b.x;
 		x = _x;
 		y = _y;
 		z = _z;
@@ -42,14 +42,14 @@ public class Vertex3f extends Vertex2f {
 	}
 
 	@Override
-	public double distance() {
-		return Math.sqrt(x * x + y * y + z * z);
+	public float distance() {
+		return (float) Math.sqrt(x * x + y * y + z * z);
 	}
 
 	/**
 	 * @return the x
 	 */
-	public double getX() {
+	public float getX() {
 		return x;
 	}
 
@@ -57,14 +57,14 @@ public class Vertex3f extends Vertex2f {
 	 * @param x
 	 *            the x to set
 	 */
-	public void setX(double x) {
+	public void setX(float x) {
 		this.x = x;
 	}
 
 	/**
 	 * @return the y
 	 */
-	public double getY() {
+	public float getY() {
 		return y;
 	}
 
@@ -72,14 +72,14 @@ public class Vertex3f extends Vertex2f {
 	 * @param y
 	 *            the y to set
 	 */
-	public void setY(double y) {
+	public void setY(float y) {
 		this.y = y;
 	}
 
 	/**
 	 * @return the z
 	 */
-	public double getZ() {
+	public float getZ() {
 		return z;
 	}
 
@@ -87,7 +87,7 @@ public class Vertex3f extends Vertex2f {
 	 * @param z
 	 *            the z to set
 	 */
-	public void setZ(double z) {
+	public void setZ(float z) {
 		this.z = z;
 	}
 	

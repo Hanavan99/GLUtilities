@@ -36,17 +36,9 @@ public class Main {
 
 	public static void main(String[] args) {
 
-		Matrix4f projMat = new Matrix4f();
-
 		// Initialize GLFW
 		GLFW.glfwInit();
-		GLFW.glfwWindowHint(GLFW.GLFW_SAMPLES, 8);
-
-		// Create scene projections for the window
-		SceneProjection ortho = new OrthographicProjection(0, 1, 1, 0, -1, 1);
-		SceneProjection fbo = new OrthographicProjection(0, 1, 0, 1, -1, 1);
-		SceneProjection perspective = new PerspectiveProjection(80, 0.25f, 100);
-		// Scene scene = new Scene(ortho, perspective, true);
+		// GLFW.glfwWindowHint(GLFW.GLFW_SAMPLES, 8);
 
 		// create a new terrain generator
 		FractalGenerator fg = new FractalGenerator(FractalGenerator.NOISE_SUM);
@@ -92,7 +84,7 @@ public class Main {
 
 		// Create a model manager to load models
 		BufferedModelManager mm = new BufferedModelManager();
-		//mm.load(new File("C:/Users/Hanavan/Desktop/testres/models/car2.obj"), "test");
+		mm.load(new File("C:/Users/Hanavan/Desktop/testres/models/car2.obj"), "test");
 
 		// Create a font manager to load fonts
 		FontManager fm = new FontManager();
@@ -100,136 +92,82 @@ public class Main {
 
 		// Create a shader program
 
-		ShaderObject vertex = new ShaderObject(ARBVertexShader.GL_VERTEX_SHADER_ARB, "testv", loadFile(new File("C:/Users/Hanavan/Desktop/test.vsh")));
+		ShaderObject vertex = new ShaderObject(ARBVertexShader.GL_VERTEX_SHADER_ARB, "testv", null);
+		ShaderObject fragment = null;// new
+										// ShaderObject(ARBFragmentShader.GL_FRAGMENT_SHADER_ARB,
+										// "testf", null);
+		updateShaderCode(vertex, fragment);
 		vertex.create();
-		ShaderObject fragment = new ShaderObject(ARBFragmentShader.GL_FRAGMENT_SHADER_ARB, "testf", loadFile(new File("C:/Users/Hanavan/Desktop/test.fsh")));
-		fragment.create();
+		// fragment.create();
 		ShaderProgram program = new ShaderProgram(vertex, fragment, null, null, null);
 		program.create();
 		program.link();
 		System.out.println(program.isLinked() + ": " + program.getError());
-		program.glUniformMatrix4f("modelviewMatrix", false, Matrix4f.IDENTITY_MATRIX);
-
+		// program.glUniformMatrix4f("modelviewMatrix", false,
+		// Matrix4f.IDENTITY_MATRIX);
+		Matrix4f projMat = GLMath.createOrthographicMatrix(-1, 1, 1, -1, -1, 1);
+		// Matrix4f projMat = GLMath.createPerspectiveMatrix(0.1f,
+		// window.getWindowAspect(), 0.1f, 1000f);
+		Matrix4f transMat = GLMath.createTransformationMatrix(new Vertex3f(0, 0, 0), new Vertex3f(0, 0, 0), new Vertex3f(1, 1, 1));
+		program.enable();
+		System.out.println(projMat);
+		program.glUniformMatrix4f("projectionMatrix", false, projMat);
+		program.glUniformMatrix4f("transformMatrix", false, transMat);
+		
+		System.out.println("\n" + projMat + "\n\n" + transMat);
+		program.disable();
 
 		MasterRenderer renderer = new MasterRenderer() {
 			@Override
 			public void render(GLWindow parent) {
-				ortho.setupProjectionMatrix(100, 100, 1);
-				float[] fmat = new float[16];
-				GL11.glGetFloatv(GL11.GL_PROJECTION_MATRIX, fmat);
-				Matrix4f mat = new Matrix4f(fmat); 
-				System.out.println(mat);
+				GL11.glClear(GL11.GL_COLOR_BUFFER_BIT | GL11.GL_DEPTH_BUFFER_BIT);
+				GL11.glViewport(0, 0, parent.getWindowWidth(), parent.getWindowHeight());
+
+				//GL11.glMatrixMode(GL11.GL_PROJECTION);
+				//GL11.glLoadIdentity();
+				// GLMath.createPerspectiveMatrix(80f, parent.getWindowAspect(),
+				// 0.1f, 100f).glLoadMatrixf();
+				// GLMath.createPerspective(80, parent.getWindowAspect(), 0.1,
+				// 100);
+				//GL11.glLoadMatrixf(projMat.getMatrix());
+				// GL11.glOrtho(-1, 1, 1, -1, -1, 1);
+				// GL11.glGetFloatv(GL11.GL_PROJECTION_MATRIX,
+				// projMat.getMatrix());
+				// System.out.println(projMat);
+
+				//GL11.glMatrixMode(GL11.GL_MODELVIEW);
+				//GL11.glLoadIdentity();
+				//GL11.glPushMatrix();
+				program.enable();
+
+				// render3D(parent, mm, false);
+				render2D(parent, fm, "R: Recompile Shader");
+
+				//GL11.glPopMatrix();
+				program.disable();
 			}
-			
+
 			@Override
 			public void update(GLWindow parent) {
-				//Matrix4f projMat = GLMath.createPerspectiveMatrix(80f, parent.getWindowAspect(), 0.1f, 100f);
-				Matrix4f projMat = GLMath.createOrthographicMatrix(0, 1, 0, 1, -1, 1);
-				program.glUniformMatrix4f("projectionMatrix", false, projMat);
+				// Matrix4f projMat = GLMath.createPerspectiveMatrix(80f,
+				// parent.getWindowAspect(), 0.1f, 100f);
+
 			}
 		};
-		
+
 		window.setMasterRenderer(renderer);
-		
-		// Add everything to the render pipeline
-		//RenderPipeline rp = window.getRenderPipeline();
-
-		Framebuffer fbo1 = new Framebuffer(window.getWindowWidth(), window.getWindowHeight());
-		fbo1.create();
-		fbo1.unbind();
-
-		Framebuffer fbo2 = new Framebuffer(window.getWindowWidth(), window.getWindowHeight());
-		fbo2.create();
-		fbo1.unbind();
-
-//		rp.addFramebuffer("fbo1", fbo1);
-//		rp.addFramebuffer("fbo2", fbo2);
-//
-//		rp.addScene("ortho", ortho);
-//		rp.addScene("fbo", fbo);
-//		rp.addScene("persp", perspective);
-//
-//		rp.addRenderer("testpersp", new Renderer(Renderer.PERSPECTIVE_SCENE) {
-//			boolean eye = false;
-//
-//			@Override
-//			public void render() {
-//				Main.render3D(window, mm, eye);
-//				eye = !eye;
-//			}
-//		});
-//
-//		rp.addRenderer("testortho", new Renderer(Renderer.ORTHOGRAPHIC_SCENE) {
-//			@Override
-//			public void render() {
-//				Main.render2D(window, fm, "R: Recompile Shaders");
-//			}
-//		});
-//
-//		rp.addRenderer("fbo", new Renderer(0) {
-//			@Override
-//			public void render() {
-//				GL11.glDisable(GL11.GL_LIGHTING);
-//				GL11.glDisable(GL11.GL_LIGHT0);
-//				// fbo1.renderToQuad(0, 0.25, 0, 0.75, 0.5, 0.75, 0.5, 0.25);
-//				// fbo2.renderToQuad(0.5, 0.25, 0.5, 0.75, 1, 0.75, 1, 0.25);
-//				program.enable();
-//				program.glUniform1i("fbo", 0);
-//				program.glUniform1i("depthfbo", 1);
-//				fbo1.renderToVBO(fboVbo, program);
-//				program.disable();
-//			}
-//		});
-//
-//		rp.addCommand(RenderPipeline.CMD_GL_CLEAR_AND_VIEWPORT);
-//		rp.addCommand(RenderPipeline.CMD_SETUP_PROJECTION, "ortho");
-//		rp.addCommand(RenderPipeline.CMD_SETUP_MODELVIEW);
-//		rp.addCommand(RenderPipeline.CMD_GL_PUSH_MATRIX);
-//		rp.addCommand(RenderPipeline.CMD_CALL_RENDERER, "testortho");
-//		rp.addCommand(RenderPipeline.CMD_GL_POP_MATRIX);
-//		rp.addCommand(RenderPipeline.CMD_BIND_FRAMEBUFFER, "fbo1");
-//		rp.addCommand(RenderPipeline.CMD_GL_CLEAR_AND_VIEWPORT);
-//		rp.addCommand(RenderPipeline.CMD_SETUP_PROJECTION, "persp");
-//		rp.addCommand(RenderPipeline.CMD_SETUP_MODELVIEW);
-//		rp.addCommand(RenderPipeline.CMD_GL_PUSH_MATRIX);
-//		rp.addCommand(RenderPipeline.CMD_CALL_RENDERER, "testpersp");
-//		rp.addCommand(RenderPipeline.CMD_GL_POP_MATRIX);
-//		rp.addCommand(RenderPipeline.CMD_UNBIND_FRAMEBUFFER, "fbo1");
-
-		// rp.addCommand(RenderPipeline.CMD_BIND_FRAMEBUFFER, "fbo2");
-		// rp.addCommand(RenderPipeline.CMD_GL_CLEAR_AND_VIEWPORT);
-		// rp.addCommand(RenderPipeline.CMD_SETUP_PROJECTION, "ortho");
-		// rp.addCommand(RenderPipeline.CMD_SETUP_MODELVIEW);
-		// rp.addCommand(RenderPipeline.CMD_GL_PUSH_MATRIX);
-		// rp.addCommand(RenderPipeline.CMD_CALL_RENDERER, "testortho");
-		// rp.addCommand(RenderPipeline.CMD_GL_POP_MATRIX);
-		// rp.addCommand(RenderPipeline.CMD_SETUP_PROJECTION, "persp");
-		// rp.addCommand(RenderPipeline.CMD_SETUP_MODELVIEW);
-		// rp.addCommand(RenderPipeline.CMD_GL_PUSH_MATRIX);
-		// rp.addCommand(RenderPipeline.CMD_CALL_RENDERER, "testpersp");
-		// rp.addCommand(RenderPipeline.CMD_GL_POP_MATRIX);
-		// rp.addCommand(RenderPipeline.CMD_UNBIND_FRAMEBUFFER, "fbo2");
-
-		// rp.addCommand(RenderPipeline.CMD_GL_CLEAR_AND_VIEWPORT);
-		// rp.addCommand(RenderPipeline.CMD_SETUP_PROJECTION, "fbo");
-		// rp.addCommand(RenderPipeline.CMD_SETUP_MODELVIEW);
-		// rp.addCommand(RenderPipeline.CMD_GL_PUSH_MATRIX);
-		//rp.addCommand(RenderPipeline.CMD_CALL_RENDERER, "fbo");
-		// rp.addCommand(RenderPipeline.CMD_GL_POP_MATRIX);
 
 		// add callbacks
 		window.setKeyCallback(new GLFWKeyCallbackI() {
 
 			@Override
 			public void invoke(long window, int key, int scancode, int action, int mods) {
-				// TODO Auto-generated method stub
 				if (action == GLFW.GLFW_PRESS) {
 					switch (key) {
 					case GLFW.GLFW_KEY_R:
-						//vertex.setCode(loadFile(new File("C:/Users/Hanavan/Desktop/test.vsh")));
-						//fragment.setCode(loadFile(new File("C:/Users/Hanavan/Desktop/test.fsh")));
-						//program.link();
-						//System.out.println("Shader Linked\n" + program.getError());
+						updateShaderCode(vertex, fragment);
+						program.link();
+						System.out.println("Shader Linked\n" + program.getError());
 						break;
 					}
 				}
@@ -238,6 +176,15 @@ public class Main {
 
 		window.loop();
 		fps.interrupt();
+	}
+
+	private static void updateShaderCode(ShaderObject vertex, ShaderObject fragment) {
+		if (vertex != null) {
+			vertex.setCode(loadFile(new File("res/shaders/samplevertex.vsh")));
+		}
+		if (fragment != null) {
+			fragment.setCode(loadFile(new File("res/shaders/samplefragment.fsh")));
+		}
 	}
 
 	private static VBO buildTerrainVBO() {
@@ -324,6 +271,10 @@ public class Main {
 			FontManager.drawString(fm.get("test"), line, 0, pos, size, window.getWindowAspect(), 0.1);
 			pos += scale * 10;
 		}
+		GL11.glBegin(GL11.GL_LINES);
+		GL11.glVertex2d(-1, -1);
+		GL11.glVertex2d(1, 1);
+		GL11.glEnd();
 	}
 
 	private static void render3D(GLWindow window, BufferedModelManager mm, boolean eye) {
@@ -347,10 +298,9 @@ public class Main {
 		// GL11.glTranslated(Math.cos(theta) * 0.25, Math.sin(theta) * 6, -1);
 		// GL11.glTranslated(0, Math.sin(theta) * 10 - 8, 0);
 
-		
 		// mm.get("test").draw();
 		terrainVBO.draw();
-		
+
 		GL11.glDisable(GL11.GL_LIGHTING);
 		GL11.glColor3d(0, 0, 1);
 		GL11.glBegin(GL11.GL_QUADS);

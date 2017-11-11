@@ -2,10 +2,10 @@ package com.glutilities.util;
 
 public class Vertex2f {
 
-	protected double x;
-	protected double y;
+	protected float x;
+	protected float y;
 
-	public Vertex2f(double x, double y) {
+	public Vertex2f(float x, float y) {
 		this.x = x;
 		this.y = y;
 	}
@@ -16,7 +16,7 @@ public class Vertex2f {
 	}
 
 	public void normalize() {
-		double scale = Math.sqrt(x * x + y * y);
+		float scale = (float) Math.sqrt(x * x + y * y);
 		x /= scale;
 		y /= scale;
 	}
@@ -31,14 +31,14 @@ public class Vertex2f {
 		y *= -1;
 	}
 
-	public double distance() {
-		return Math.sqrt(x * x + y * y);
+	public float distance() {
+		return (float) Math.sqrt(x * x + y * y);
 	}
 
 	/**
 	 * @return the x
 	 */
-	public double getX() {
+	public float getX() {
 		return x;
 	}
 
@@ -46,14 +46,14 @@ public class Vertex2f {
 	 * @param x
 	 *            the x to set
 	 */
-	public void setX(double x) {
+	public void setX(float x) {
 		this.x = x;
 	}
 
 	/**
 	 * @return the y
 	 */
-	public double getY() {
+	public float getY() {
 		return y;
 	}
 
@@ -61,7 +61,7 @@ public class Vertex2f {
 	 * @param y
 	 *            the y to set
 	 */
-	public void setY(double y) {
+	public void setY(float y) {
 		this.y = y;
 	}
 

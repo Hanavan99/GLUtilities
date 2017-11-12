@@ -20,7 +20,7 @@ void main() {
 	//gl_Position = vec4(position.xy, 0.0, 1.0);
 	vec4 worldPos = vec4(position, 1.0);
 	
-	gl_ClipDistance[0] = dot(worldPos, plane);
+	//gl_ClipDistance[0] = dot(worldPos, plane);
 	
 	gl_Position = projectionMatrix * transformMatrix * worldPos;
 	

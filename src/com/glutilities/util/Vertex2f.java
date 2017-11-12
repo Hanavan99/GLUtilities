@@ -68,5 +68,10 @@ public class Vertex2f {
 	public Vertex3f toVertex3() {
 		return new Vertex3f(x, y, 0);
 	}
+	
+	@Override
+	public String toString() {
+		return String.format("x=%.2f y=%.2f", x, y);
+	}
 
 }

@@ -5,12 +5,13 @@ package com.glutilities.util;
  * 
  * @author Hanavan99
  */
-public class Converter {
+public class ArrayUtils {
 
 	/**
 	 * Convert a {@code Float[]} array to a {@code float[]} array.
 	 * 
-	 * @param array the array
+	 * @param array
+	 *            the array
 	 * @return the primitive array
 	 */
 	public static float[] toPrimitiveArray(Float[] array) {
@@ -24,7 +25,8 @@ public class Converter {
 	/**
 	 * Convert a {@code Double[]} array to a {@code double[]} array.
 	 * 
-	 * @param array the array
+	 * @param array
+	 *            the array
 	 * @return the primitive array
 	 */
 	public static double[] toPrimitiveArray(Double[] array) {
@@ -38,7 +40,8 @@ public class Converter {
 	/**
 	 * Convert a {@code Integer[]} array to a {@code int[]} array.
 	 * 
-	 * @param array the array
+	 * @param array
+	 *            the array
 	 * @return the primitive array
 	 */
 	public static int[] toPrimitiveArray(Integer[] array) {
@@ -55,6 +58,47 @@ public class Converter {
 			result[i] = array[i];
 		}
 		return result;
+	}
+
+	/**
+	 * Fills the array with the specified pattern. If the array size is not a
+	 * multiple of the pattern size, the pattern will be truncated for the last
+	 * values.
+	 * 
+	 * @param array
+	 *            the array to fill
+	 * @param pattern
+	 *            the pattern
+	 */
+	public static void fill(float[] array, float[] pattern) {
+		for (int i = 0; i < array.length; i++) {
+			array[i] = pattern[i % pattern.length];
+		}
+	}
+
+	public static void fillmask(float[] array, float[] pattern, int mask) {
+		for (int i = 0; i < array.length; i++) {
+			if ((mask & (1 << (pattern.length - (i % pattern.length) - 1))) != 0) {
+				array[i] = pattern[i % pattern.length];
+			}
+		}
+	}
+	
+	public static void fillrandom(float[] array, int repeat) {
+		float r = 0;
+		float g = 0;
+		float b = 0;
+		for (int i = 0; i < array.length; i += 3) {
+			if (i % repeat == 0) {
+				r = (float) Math.random();
+				g = (float) Math.random();
+				b = (float) Math.random();
+				
+			}
+			array[i] = r;
+			array[i + 1] = g;
+			array[i + 2] = b;
+		}
 	}
 
 }

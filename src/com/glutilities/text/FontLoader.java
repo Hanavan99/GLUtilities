@@ -14,7 +14,7 @@ import org.lwjgl.opengl.GL11;
 
 import com.glutilities.buffer.VBO;
 import com.glutilities.resource.ResourceLoader;
-import com.glutilities.util.Converter;
+import com.glutilities.util.ArrayUtils;
 import com.glutilities.util.GLMath;
 
 public class FontLoader extends ResourceLoader<Charset, String, Font> {
@@ -155,7 +155,7 @@ public class FontLoader extends ResourceLoader<Charset, String, Font> {
 				abscoords.add(dx);
 				abscoords.add(dy);
 				abscoords.add(0f);
-				VBO vbo = new VBO(buildMesh(Converter.toPrimitiveArray(abscoords.toArray(new Float[0]))), null, null, null, null, GL11.GL_LINES);
+				VBO vbo = new VBO(buildMesh(ArrayUtils.toPrimitiveArray(abscoords.toArray(new Float[0]))), null, null, null, null, GL11.GL_LINES);
 				vbo.create();
 				vbos.add(vbo);
 				abscoords.clear();
@@ -208,7 +208,7 @@ public class FontLoader extends ResourceLoader<Charset, String, Font> {
 		for (int i = 0; i < vertices.length; i++) {
 			mesh.add(vertices[i]);
 		}
-		return Converter.toPrimitiveArray(mesh.toArray(new Float[0]));
+		return ArrayUtils.toPrimitiveArray(mesh.toArray(new Float[0]));
 	}
 
 	@Override

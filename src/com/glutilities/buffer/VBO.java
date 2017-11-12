@@ -41,6 +41,14 @@ public class VBO implements Reusable {
 		}
 		ARBVertexArrayObject.glBindVertexArray(0);
 	}
+	
+	public void setVertices(float[] vertices) {
+		this.vertices = vertices;
+	}
+	
+	public void setColors(float[] colors) {
+		this.colors = colors;
+	}
 
 	@Override
 	public void create() {

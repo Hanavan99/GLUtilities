@@ -306,6 +306,9 @@ public class GLWindow implements Reusable {
 
 	@Override
 	public void delete() {
+		if (renderer != null) {
+			renderer.exit(this);
+		}
 		GLFW.glfwDestroyWindow(window);
 	}
 

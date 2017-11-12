@@ -2,7 +2,7 @@ package com.glutilities.util.matrix;
 
 import org.lwjgl.opengl.GL11;
 
-import com.glutilities.util.Converter;
+import com.glutilities.util.ArrayUtils;
 
 public abstract class Matrixf<E> {
 
@@ -65,7 +65,7 @@ public abstract class Matrixf<E> {
 				format += "\n";
 			}
 		}
-		return String.format(format, (Object[]) Converter.toObjectArray(matrix));
+		return String.format(format, (Object[]) ArrayUtils.toObjectArray(matrix));
 	}
 
 }

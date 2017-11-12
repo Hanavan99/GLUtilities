@@ -9,6 +9,7 @@ import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL20;
 
 import com.glutilities.core.Reusable;
+import com.glutilities.util.Vertex4f;
 import com.glutilities.util.matrix.Matrix4f;
 
 /**
@@ -148,6 +149,10 @@ public class ShaderProgram implements Reusable {
 	
 	public void glUniformMatrix4f(String name, boolean transpose, Matrix4f mat4) {
 		GL20.glUniformMatrix4fv(glGetUniformLocation(name), transpose, mat4.getMatrix());
+	}
+	
+	public void glUniform4f(String name, Vertex4f vec4) {
+		GL20.glUniform4f(glGetUniformLocation(name), vec4.getX(), vec4.getY(), vec4.getZ(), vec4.getW());
 	}
 
 	/**

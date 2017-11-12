@@ -5,10 +5,9 @@ import org.lwjgl.opengl.ARBVertexBufferObject;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL20;
 
-import com.glutilities.core.Bindable;
 import com.glutilities.core.Reusable;
 
-public class VBO implements Reusable, Bindable {
+public class VBO implements Reusable {
 
 	private int vboVertices;
 	private int vboColors;
@@ -33,33 +32,14 @@ public class VBO implements Reusable, Bindable {
 	}
 
 	public void draw() {
-		// bind();
-		// GL11.glEnableClientState(GL11.GL_VERTEX_ARRAY);
-		// GL11.glVertexPointer(3, GL11.GL_FLOAT, 0, vboData);
-		// GL11.glDrawElements(drawMode, indices);
-		// GL11.glDisableClientState(GL11.GL_VERTEX_ARRAY);
 		ARBVertexArrayObject.glBindVertexArray(vao);
-		// GL11.glEnableClientState(GL11.GL_VERTEX_ARRAY);
-		// GL11.glEnableClientState(GL11.GL_COLOR_ARRAY);
-		// ARBVertexArrayObject.glB
-		// GL20.glVertexAttribPointer(0, 3, GL11.GL_FLOAT, false, 0,
-		// vboVertices);
-		// GL20.glEnableVertexAttribArray(0);
-		// GL11.glDrawElements(GL11.GL_TRIANGLES, indicesBuffer);
 		if (indices != null) {
 			ARBVertexBufferObject.glBindBufferARB(ARBVertexBufferObject.GL_ELEMENT_ARRAY_BUFFER_ARB, vboIndices);
-			// GL11.glDrawArrays(GL11.GL_TRIANGLES, 0, 3);
-			// System.out.println(indicesBuffer.get(2));
-
-			// GL11.glDrawElements(GL11.GL_TRIANGLES, indicesBuffer);
 			GL11.glDrawElements(drawMode, indices.length, GL11.GL_UNSIGNED_INT, 0);
 		} else {
 			GL11.glDrawArrays(drawMode, 0, vertices.length);
 		}
-		// GL11.glDisableClientState(GL11.GL_VERTEX_ARRAY);
-		// GL11.glDisableClientState(GL11.GL_COLOR_ARRAY);
 		ARBVertexArrayObject.glBindVertexArray(0);
-		// unbind();
 	}
 
 	@Override
@@ -123,25 +103,15 @@ public class VBO implements Reusable, Bindable {
 			GL20.glVertexAttribPointer(3, 3, GL11.GL_FLOAT, false, 0, 0);
 			GL20.glEnableVertexAttribArray(3);
 		}
-		
+		ARBVertexArrayObject.glBindVertexArray(0);
 	}
 
 	@Override
 	public void delete() {
 		ARBVertexBufferObject.glDeleteBuffersARB(vboVertices);
 		ARBVertexBufferObject.glDeleteBuffersARB(vboColors);
-	}
-
-	@Override
-	public void bind() {
-		ARBVertexBufferObject.glBindBufferARB(ARBVertexBufferObject.GL_ARRAY_BUFFER_ARB, vboVertices);
-		ARBVertexBufferObject.glBindBufferARB(ARBVertexBufferObject.GL_ELEMENT_ARRAY_BUFFER_ARB, vboColors);
-	}
-
-	@Override
-	public void unbind() {
-		ARBVertexBufferObject.glBindBufferARB(ARBVertexBufferObject.GL_ARRAY_BUFFER_ARB, 0);
-		ARBVertexBufferObject.glBindBufferARB(ARBVertexBufferObject.GL_ELEMENT_ARRAY_BUFFER_ARB, 0);
+		ARBVertexBufferObject.glDeleteBuffersARB(vboNormals);
+		ARBVertexBufferObject.glDeleteBuffersARB(vboTexcoords);
 	}
 
 }

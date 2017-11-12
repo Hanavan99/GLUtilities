@@ -54,6 +54,9 @@ public class GLWindow implements Reusable {
 	 */
 	private int frameCounter = 0;
 
+	/**
+	 * The master renderer that is used to draw on the screen each frame.
+	 */
 	private MasterRenderer renderer;
 
 	/**
@@ -165,6 +168,15 @@ public class GLWindow implements Reusable {
 	}
 
 	/**
+	 * Gets the master renderer that is used to draw on the screen each frame.
+	 * 
+	 * @return the renderer
+	 */
+	public MasterRenderer getMasterRenderer() {
+		return renderer;
+	}
+
+	/**
 	 * Gets the state of any key on the keyboard.
 	 * 
 	 * @param key the key
@@ -228,16 +240,22 @@ public class GLWindow implements Reusable {
 		this.vsync = vsync;
 	}
 
+	/**
+	 * Sets the master renderer that is used to draw on the screen each frame.
+	 * 
+	 * @param renderer the renderer
+	 */
 	public void setMasterRenderer(MasterRenderer renderer) {
 		this.renderer = renderer;
 	}
 
+	/**
+	 * Sets the key callback for this window
+	 * 
+	 * @param callback the callback
+	 */
 	public void setKeyCallback(GLFWKeyCallbackI callback) {
 		GLFW.glfwSetKeyCallback(window, GLFWKeyCallback.create(callback));
-	}
-
-	public MasterRenderer getMasterRenderer() {
-		return renderer;
 	}
 
 	/**

@@ -2,7 +2,7 @@ package com.glutilities.util;
 
 public class Vertex3f extends Vertex2f {
 
-	private float z;
+	protected float z;
 
 	public Vertex3f(float x, float y, float z) {
 		super(x, y);
@@ -44,36 +44,6 @@ public class Vertex3f extends Vertex2f {
 	@Override
 	public float distance() {
 		return (float) Math.sqrt(x * x + y * y + z * z);
-	}
-
-	/**
-	 * @return the x
-	 */
-	public float getX() {
-		return x;
-	}
-
-	/**
-	 * @param x
-	 *            the x to set
-	 */
-	public void setX(float x) {
-		this.x = x;
-	}
-
-	/**
-	 * @return the y
-	 */
-	public float getY() {
-		return y;
-	}
-
-	/**
-	 * @param y
-	 *            the y to set
-	 */
-	public void setY(float y) {
-		this.y = y;
 	}
 
 	/**

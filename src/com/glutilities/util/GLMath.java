@@ -91,47 +91,6 @@ public class GLMath {
 		GL11.glFrustum(-fw, fw, -fh, fh, znear, zfar);
 	}
 
-	public static Matrix4f createPerspectiveMatrix(float fov, float aspect, float near, float far) {
-		float t = (float) Math.tan(fov / 360f * Math.PI) * near;
-		float b = -t;
-		float r = t * aspect;
-		float l = -r;
-		float[] matrix = new float[16];
-		//matrix[0] = 1f / fh / aspect;
-		matrix[0] = 2f * near / (r - l);
-		matrix[2] = (r + l) / (r - l);
-		//matrix[5] = 1f / fh;
-		matrix[5] = 2f * near / (t - b);
-		matrix[6] = (t + b) / (t - b);
-		matrix[10] = -(far + near) / (far - near);
-		matrix[11] = -(2f * far * near) / (far - near);
-		matrix[14] = -1;
-		matrix[15] = 0;
-		return new Matrix4f(matrix);
-	}
-
-	public static Matrix4f createOrthographicMatrix(float l, float r, float b, float t, float n, float f) {
-		float[] matrix = new float[16];
-		matrix[0] = 2 / (r - l);
-		matrix[5] = 2 / (t - b);
-		matrix[10] = -2 / (f - n);
-		matrix[12] = -(r + l) / (r - l);
-		matrix[13] = -(t + b) / (t - b);
-		matrix[14] = -(f + n) / (f - n);
-		matrix[15] = 1;
-		return new Matrix4f(matrix);
-	}
-
-	public static Matrix4f createTransformationMatrix(Vertex3f position, Vertex3f rotation, Vertex3f scale) {
-		float[] matrix = new float[16];
-		matrix[0] = scale.getX();
-		matrix[3] = position.getX();
-		matrix[5] = scale.getY();
-		matrix[7] = position.getY();
-		matrix[10] = scale.getZ();
-		matrix[11] = position.getZ();
-		matrix[15] = 1;
-		return new Matrix4f(matrix);
-	}
+	
 
 }

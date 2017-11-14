@@ -1,6 +1,6 @@
 package com.glutilities.text.ttf;
 
-import com.glutilities.util.Boundary;
+import com.glutilities.util.Rectangle;
 
 public class SimpleGlyph extends Glyph {
 
@@ -12,7 +12,7 @@ public class SimpleGlyph extends Glyph {
 	private int[] xCoordinates;
 	private int[] yCoordinates;
 
-	private SimpleGlyph(int numberOfContours, Boundary boundary, int[] endPtsOfContours, int instructionLength, int[] instructions, int[] flags, int[] xCoordinates, int[] yCoordinates) {
+	private SimpleGlyph(int numberOfContours, Rectangle boundary, int[] endPtsOfContours, int instructionLength, int[] instructions, int[] flags, int[] xCoordinates, int[] yCoordinates) {
 		super(numberOfContours, boundary);
 		this.endPtsOfContours = endPtsOfContours;
 		this.instructionLength = instructionLength;

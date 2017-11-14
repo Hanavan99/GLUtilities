@@ -5,7 +5,8 @@ import java.util.List;
 
 public class EarClipper {
 
-	public static float[] clip(float[] points) {
+	public static float[] clip(float[] points, int cutoff, float tolerance) {
+		System.out.println("\n\n\nClipping...");
 		List<Vertex2f> aPoints = new ArrayList<Vertex2f>();
 		List<Vertex2f> oldPoints = new ArrayList<Vertex2f>();
 		// List<Vertex2f> oldPointsCopy = new ArrayList<Vertex2f>();
@@ -18,26 +19,41 @@ public class EarClipper {
 		int pindex = 0;
 		int iterations = 0;
 		int oldpointssize = oldPoints.size();
-		while (oldpointssize > 3 && iterations < 50) {
+		while (oldpointssize > 3 && iterations < cutoff) {
 			oldpointssize = oldPoints.size();
 			// System.out.printf("Array size: %d, index: %d\n", oldpointssize, pindex);
 			if (pindex < oldPoints.size() - 2) {
-				Vertex2f p1 = oldPoints.get(pindex);
-				Vertex2f p2 = oldPoints.get(pindex + 1);
-				Vertex2f p3 = oldPoints.get(pindex + 2);
+				Vertex2f[] triangle = findTriangle(pindex, oldPoints);
+				if (triangle.length != 3) {
+					pindex = 0;
+					//System.out.println("Couldn't find a suitable triangle, restarting at 0");
+					continue;
+				}
+				Vertex2f p1 = triangle[0];//oldPoints.get(pindex);
+				Vertex2f p2 = triangle[1];//oldPoints.get(pindex + 1);
+				Vertex2f p3 = triangle[2];//oldPoints.get(pindex + 2);
+				//System.out.printf("Checking triangle %s %s %s\n", p1, p2, p3);
 				// System.out.println(angle(p1, p2) + " - " + angle(p2, p3));
 				// System.out.println(oldPoints.indexOf(p1));
 				// Vertex2f midhyp = interpolate(p1, p3, 0.5f);
 				// System.out.printf("%s %s %s - %s\n", p1, p2, p3, midhyp);
-				if (p1 != null && p2 != null && p3 != null && isInside(interpolate(p1, p3, 0.5f), oldPoints)) {
-					System.out.printf("%s %s %s - %s\n", p1, p2, p3, interpolate(p1, p3, 0.5f));
+				boolean inside = true;
+				for (float t = tolerance + 0.015f; t <= 1; t += tolerance) {
+					Vertex2f inter = interpolate(p1, p3, t);
+					inside = isInside(inter, aPoints);
+					if (inside == false) {
+						break;
+					}
+				}
+				if (/*p1 != null && p2 != null && p3 != null && */inside) {
+					//System.out.printf("%s %s %s - %s\n", p1, p2, p3, interpolate(p1, p3, 0.5f));
 					newPoints.add(p1);
 					newPoints.add(p2);
 					newPoints.add(p3);
 					oldPoints.set(pindex + 1, null);
 					oldpointssize--;
-					pindex++;
-					// System.out.println(p1 + " + " + p2 + " + " + p3 + " passed");
+					pindex += 2;
+					//System.out.println("Triangle passed");
 				} else {
 					// System.out.println(p1 + " + " + p2 + " + " + p3 + " failed");
 					pindex++;
@@ -49,12 +65,12 @@ public class EarClipper {
 						oldPoints.remove(i);
 					}
 				}
-				System.out.println("Completed a pass and the array size is now " + oldPoints.size());
+				//System.out.println("Completed a pass and the array size is now " + oldPoints.size());
 				// break;
 			}
 			iterations++;
 		}
-		System.out.println("Finished in " + iterations + " iterations");
+		//System.out.println("Finished in " + iterations + " iterations");
 
 		float[] result = new float[newPoints.size() * 3];
 		for (int i = 0; i < newPoints.size() * 3; i += 3) {
@@ -64,6 +80,18 @@ public class EarClipper {
 		}
 
 		return result;
+	}
+	
+	private static Vertex2f[] findTriangle(int startIndex, List<Vertex2f> points) {
+		List<Vertex2f> triangle = new ArrayList<Vertex2f>();
+		int index = startIndex;
+		while (triangle.size() < 3 && index < points.size()) {
+			if (points.get(index) != null) {
+				triangle.add(points.get(index));
+			}
+			index++;
+		}
+		return triangle.toArray(new Vertex2f[0]);
 	}
 
 	private static float angle(Vertex2f base, Vertex2f offset) {
@@ -77,12 +105,14 @@ public class EarClipper {
 		for (int i = 0; i < points.size() - 1; i++) {
 			Vertex2f start = points.get(i);
 			Vertex2f end = points.get(i + 1);
-			if (start != null && end != null && fakeIntersect(/*rayStart, rayEnd, */start, end, point.getY()) && start.getY() != end.getY() && end.getY() != point.getY()) {
-				System.out.printf("%s and %s intersect the line y=%.2f\n", start, end, point.getY());
+			if (start != null && end != null && fakeIntersect(/*rayStart, rayEnd, */start, end, point.getX(), point.getY()) && start.getY() != end.getY() && end.getY() != point.getY()) {
+				//System.out.printf("%s and %s intersect the line y=%.2f\n", start, end, point.getY());
 				intersections++;
+			} else {
+				//System.out.printf("%s and %s don't intersect the line y=%.2f\n", start, end, point.getY());
 			}
 		}
-		System.out.printf("Point %s intersected %d times\n", point, intersections);
+		//System.out.printf("Point %s intersected %d times\n", point, intersections);
 		return intersections % 2 == 1;
 	}
 
@@ -126,9 +156,9 @@ public class EarClipper {
 		return onLine1 && onLine2;
 	}
 	
-	public static boolean fakeIntersect(Vertex2f a1, Vertex2f a2, float y) {
+	public static boolean fakeIntersect(Vertex2f a1, Vertex2f a2, float xclip, float y) {
 		
-		return (a1.getY() <= y && a2.getY() >= y) || (a1.getY() >= y && a2.getY() <= y);
+		return /*(a2.getY() != y && a1.getY() != y) &&  */((a1.getY() <= y && a2.getY() >= y) || (a1.getY() >= y && a2.getY() <= y)) && (a1.getX() >= xclip && a2.getX() >= xclip);
 	}
 
 	private static Vertex2f interpolate(Vertex2f p1, Vertex2f p2, float a) {

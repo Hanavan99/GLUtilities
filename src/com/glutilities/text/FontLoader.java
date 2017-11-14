@@ -15,11 +15,12 @@ import org.lwjgl.opengl.GL11;
 import com.glutilities.buffer.VBO;
 import com.glutilities.resource.ResourceLoader;
 import com.glutilities.util.ArrayUtils;
+import com.glutilities.util.EarClipper;
 import com.glutilities.util.GLMath;
 
 public class FontLoader extends ResourceLoader<Charset, String, Font> {
 
-	private static AffineTransform transform = new AffineTransform(1, 0, 0, 1, 0, 0);
+	private static final AffineTransform transform = new AffineTransform(1, 0, 0, 1, 0, 0);
 	
 	@Override
 	public Charset load(Font src, String key) throws IOException {
@@ -76,64 +77,6 @@ public class FontLoader extends ResourceLoader<Charset, String, Font> {
 			}
 			glyphs.add(buildGlyph(c, width, height, xcoords, ycoords, flags));
 		}
-		/* OLD CODE
-		AffineTransform trans = new AffineTransform(1, 0, 0, 1, 0, 0);
-		Font f = new Font(src, Font.PLAIN, 12);
-		FontRenderContext context = new FontRenderContext(trans, true, true);
-		Glyph[] glyphs = new Glyph[256];
-		for (int glyphNum = 0; glyphNum < glyphs.length; glyphNum++) {
-			GlyphVector v = f.createGlyphVector(context, new String(new char[] { (char) glyphNum }));
-			Shape s = v.getOutline(0, 0);
-			Rectangle2D bounds = f.getStringBounds(new String(new char[] { (char) glyphNum }), context);
-			PathIterator it = s.getPathIterator(trans);
-			double[] xPoints = new double[1024];
-			double[] yPoints = new double[1024];
-			int[] flags = new int[1024];
-			int i = 0;
-			while (!it.isDone()) {
-				double[] data = new double[6];
-				int code = it.currentSegment(data);
-				it.next();
-				flags[i] = code;
-				switch (code) {
-				case PathIterator.SEG_CLOSE:
-					xPoints[i] = data[0];
-					yPoints[i] = data[1];
-					i++;
-					break;
-				case PathIterator.SEG_CUBICTO:
-					xPoints[i] = data[0];
-					yPoints[i] = data[1];
-					xPoints[i + 1] = data[2];
-					yPoints[i + 1] = data[3];
-					xPoints[i + 2] = data[4];
-					yPoints[i + 2] = data[5];
-					i += 3;
-					break;
-				case PathIterator.SEG_LINETO:
-					xPoints[i] = data[0];
-					yPoints[i] = data[1];
-					i++;
-					break;
-				case PathIterator.SEG_MOVETO:
-					xPoints[i] = data[0];
-					yPoints[i] = data[1];
-					i++;
-					break;
-				case PathIterator.SEG_QUADTO:
-					xPoints[i] = data[0];
-					yPoints[i] = data[1];
-					xPoints[i + 1] = data[2];
-					yPoints[i + 1] = data[3];
-					i += 2;
-					break;
-				}
-			}
-			glyphs[glyphNum] = new Glyph((char) glyphNum, xPoints, yPoints, bounds.getWidth(), bounds.getHeight(),
-					flags);
-		}
-		return new Charset(key, glyphs);
-		*/
 		return new Charset(key, glyphs.toArray(new NewGlyph[0]));
 	}
 	
@@ -145,17 +88,17 @@ public class FontLoader extends ResourceLoader<Charset, String, Font> {
 		float lastx = 0;
 		float lasty = 0;
 		int i = 0;
-		
+		float zoff = 0;
 		while (i < xPoints.length) {
 			switch (flags[i]) {
 			case PathIterator.SEG_CLOSE:
 				abscoords.add(lastx);
 				abscoords.add(lasty);
-				abscoords.add(0f);
+				abscoords.add(zoff);
 				abscoords.add(dx);
 				abscoords.add(dy);
-				abscoords.add(0f);
-				VBO vbo = new VBO(buildMesh(ArrayUtils.toPrimitiveArray(abscoords.toArray(new Float[0]))), null, null, null, null, GL11.GL_LINES);
+				abscoords.add(zoff);
+				VBO vbo = new VBO(buildMesh(ArrayUtils.toPrimitiveArray(abscoords.toArray(new Float[0]))), null, null, null, null, GL11.GL_TRIANGLES);
 				vbo.create();
 				vbos.add(vbo);
 				abscoords.clear();
@@ -164,19 +107,19 @@ public class FontLoader extends ResourceLoader<Charset, String, Font> {
 			case PathIterator.SEG_CUBICTO:
 				abscoords.add(lastx);
 				abscoords.add(lasty);
-				abscoords.add(0f);
+				abscoords.add(zoff);
 				abscoords.add(lastx = xPoints[i + 2]);
 				abscoords.add(lasty = yPoints[i + 2]);
-				abscoords.add(0f);
+				abscoords.add(zoff);
 				i += 3;
 				break;
 			case PathIterator.SEG_LINETO:
 				abscoords.add(lastx);
 				abscoords.add(lasty);
-				abscoords.add(0f);
+				abscoords.add(zoff);
 				abscoords.add(lastx = xPoints[i]);
 				abscoords.add(lasty = yPoints[i]);
-				abscoords.add(0f);
+				abscoords.add(zoff);
 				i++;
 				break;
 			case PathIterator.SEG_MOVETO:
@@ -191,10 +134,10 @@ public class FontLoader extends ResourceLoader<Charset, String, Font> {
 					float[] b = GLMath.quadBezier(_x, _y, xPoints[i], yPoints[i], xPoints[i + 1], yPoints[i + 1], t);
 					abscoords.add(lastx);
 					abscoords.add(lasty);
-					abscoords.add(0f);
+					abscoords.add(zoff);
 					abscoords.add(lastx = b[0]);
 					abscoords.add(lasty = b[1]);
-					abscoords.add(0f);
+					abscoords.add(zoff);
 				}
 				i += 2;
 				break;
@@ -204,11 +147,12 @@ public class FontLoader extends ResourceLoader<Charset, String, Font> {
 	}
 	
 	private float[] buildMesh(float[] vertices) {
-		List<Float> mesh = new ArrayList<Float>();
-		for (int i = 0; i < vertices.length; i++) {
-			mesh.add(vertices[i]);
-		}
-		return ArrayUtils.toPrimitiveArray(mesh.toArray(new Float[0]));
+//		List<Float> mesh = new ArrayList<Float>();
+//		for (int i = 0; i < vertices.length; i++) {
+//			mesh.add(vertices[i]);
+//		}
+//		return ArrayUtils.toPrimitiveArray(mesh.toArray(new Float[0]));
+		return EarClipper.clip(vertices, 5000, 0.5f);
 	}
 
 	@Override

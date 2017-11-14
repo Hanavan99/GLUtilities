@@ -4,7 +4,7 @@ import org.lwjgl.opengl.GL11;
 
 import com.glutilities.util.ArrayUtils;
 
-public abstract class Matrixf<E> {
+public abstract class Matrixf<E> implements Cloneable {
 
 	protected final float[] matrix;
 	protected final int size;
@@ -66,6 +66,16 @@ public abstract class Matrixf<E> {
 			}
 		}
 		return String.format(format, (Object[]) ArrayUtils.toObjectArray(matrix));
+	}
+	
+	@Override
+	public Object clone() {
+		try {
+			return super.clone();
+		} catch (CloneNotSupportedException e) {
+			e.printStackTrace();
+			return null;
+		}
 	}
 
 }

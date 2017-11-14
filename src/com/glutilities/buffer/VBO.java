@@ -31,6 +31,10 @@ public class VBO implements Reusable {
 		this.drawMode = drawMode;
 	}
 
+	/**
+	 * Draws each vertex in this Vertex Buffer Object sequentially, along with
+	 * its color, normal, and texture coordinate compadres.
+	 */
 	public void draw() {
 		ARBVertexArrayObject.glBindVertexArray(vao);
 		if (indices != null) {
@@ -41,13 +45,34 @@ public class VBO implements Reusable {
 		}
 		ARBVertexArrayObject.glBindVertexArray(0);
 	}
-	
+
+	/**
+	 * Same as {@code draw()}, but allows you to specify a specific subset of
+	 * vertices to draw. Must be called after the {@code bind()} method, or
+	 * nothing will be drawn.
+	 * 
+	 * @param start the index of the first element to draw
+	 * @param count the number of vertices to draw
+	 */
+	public void draw(int start, int count) {
+		GL11.glDrawArrays(drawMode, start, count);
+	}
+
 	public void setVertices(float[] vertices) {
 		this.vertices = vertices;
 	}
-	
+
 	public void setColors(float[] colors) {
 		this.colors = colors;
+	}
+
+	public void bind() {
+		ARBVertexArrayObject.glBindVertexArray(vao);
+		//ARBVertexBufferObject.glBindBufferARB(ARBVertexBufferObject.GL_ELEMENT_ARRAY_BUFFER_ARB, vboIndices);
+	}
+
+	public void unbind() {
+		ARBVertexArrayObject.glBindVertexArray(0);
 	}
 
 	@Override

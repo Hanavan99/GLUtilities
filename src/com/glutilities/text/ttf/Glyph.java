@@ -1,13 +1,13 @@
 package com.glutilities.text.ttf;
 
-import com.glutilities.util.Boundary;
+import com.glutilities.util.Rectangle;
 
 public abstract class Glyph {
 
 	private int numberOfContours;
-	private Boundary boundary;
+	private Rectangle boundary;
 
-	public Glyph(int numberOfContours, Boundary boundary) {
+	public Glyph(int numberOfContours, Rectangle boundary) {
 		this.numberOfContours = numberOfContours;
 		this.boundary = boundary;
 	}
@@ -22,7 +22,7 @@ public abstract class Glyph {
 	/**
 	 * @return the boundary
 	 */
-	public Boundary getBoundary() {
+	public Rectangle getBoundary() {
 		return boundary;
 	}
 

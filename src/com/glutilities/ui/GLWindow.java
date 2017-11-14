@@ -15,8 +15,10 @@ import com.glutilities.core.Reusable;
  * 
  * @author Hanavan99
  */
-public class GLWindow implements Reusable {
+public final class GLWindow implements Reusable {
 
+	private final RenderContext context;
+	
 	/**
 	 * The window ID used by GLFW.
 	 */
@@ -76,6 +78,19 @@ public class GLWindow implements Reusable {
 		this.height = height;
 		this.title = title;
 		this.monitor = monitor;
+		context = new RenderContext() {
+
+			@Override
+			public int getWidth() {
+				return GLWindow.this.getWindowWidth();
+			}
+
+			@Override
+			public int getHeight() {
+				return GLWindow.this.getWindowHeight();
+			}
+			
+		};
 	}
 
 	/**
@@ -97,7 +112,15 @@ public class GLWindow implements Reusable {
 
 		GL11.glClearColor(0, 0, 0, 1);
 		if (renderer != null) {
-			renderer.init(this);
+			renderer.init(context);
+		}
+		
+		linkCallbacksToRenderer();
+	}
+	
+	public void linkCallbacksToRenderer() {
+		if (renderer != null) {
+			GLFW.glfwSetKeyCallback(window, GLFWKeyCallback.create((window, key, scancode, action, mods) -> renderer.keyPressed(context, key, action)));
 		}
 	}
 
@@ -108,7 +131,7 @@ public class GLWindow implements Reusable {
 		while (!GLFW.glfwWindowShouldClose(window)) {
 
 			if (renderer != null) {
-				renderer.render(this);
+				renderer.render(context);
 			}
 
 			GLFW.glfwPollEvents();
@@ -298,7 +321,7 @@ public class GLWindow implements Reusable {
 				if (renderer != null) {
 					GLWindow.this.width = width;
 					GLWindow.this.height = height;
-					renderer.update(GLWindow.this);
+					renderer.update(GLWindow.this.context);
 				}
 			}
 		}));
@@ -307,7 +330,7 @@ public class GLWindow implements Reusable {
 	@Override
 	public void delete() {
 		if (renderer != null) {
-			renderer.exit(this);
+			renderer.exit(context);
 		}
 		GLFW.glfwDestroyWindow(window);
 	}

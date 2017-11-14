@@ -16,8 +16,8 @@ public class FontManager extends ResourceManager<Charset, String, Font> {
 		super(new FontLoader());
 	}
 
-	public static void drawString(Charset charset, String text, double x, double y, double size, double aspect,
-			double kerning) {
+	@Deprecated
+	public static void drawString(Charset charset, String text, double x, double y, double size, double aspect, double kerning) {
 		char[] data = text.toCharArray();
 		double dx = 0;
 		GL11.glPushMatrix();
@@ -37,19 +37,19 @@ public class FontManager extends ResourceManager<Charset, String, Font> {
 		GL11.glPopMatrix();
 	}
 
-	public static void drawString(Charset charset, String text, Matrix4f transform, float kerning,
-			ShaderProgram program, String tmn) {
+	public static void drawString(Charset charset, String text, Matrix4f transform, float kerning, ShaderProgram program, String tmn) {
 		char[] data = text.toCharArray();
+		float xoff = 0;
 		for (char c : data) {
 			program.glUniformMatrix4f(tmn, true, transform);
 			NewGlyph g = charset.getGlyphForChar(c);
 			g.draw();
-			// System.out.println(transform + "\n\n");
 			if (c == '\n') {
-				transform = MatrixMath.translate(transform, new Vertex3f(0, 0.1f, 0));
-				
+				transform = MatrixMath.translate(transform, new Vertex3f(-xoff, 0.1f, 0));
+
 			} else {
-				transform = MatrixMath.translate(transform, new Vertex3f(g.getWidth() / 250f, 0, 0));
+				xoff += g.getWidth() / 20f;
+				transform = MatrixMath.translate(transform, new Vertex3f(g.getWidth() / 20f, 0, 0));
 			}
 		}
 

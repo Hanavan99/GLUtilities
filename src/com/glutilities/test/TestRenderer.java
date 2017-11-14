@@ -3,27 +3,30 @@ package com.glutilities.test;
 import java.awt.Font;
 import java.io.File;
 import java.io.IOException;
-import java.util.Arrays;
 import java.util.Scanner;
 
 import org.lwjgl.glfw.GLFW;
-import org.lwjgl.glfw.GLFWKeyCallbackI;
-import org.lwjgl.opengl.ARBFragmentShader;
-import org.lwjgl.opengl.ARBVertexShader;
 import org.lwjgl.opengl.GL11;
 
 import com.glutilities.buffer.VBO;
 import com.glutilities.model.BufferedModelManager;
+import com.glutilities.shader.FragmentShader;
 import com.glutilities.shader.ShaderObject;
 import com.glutilities.shader.ShaderProgram;
+import com.glutilities.shader.VertexShader;
 import com.glutilities.terrain.PerlinGenerator;
 import com.glutilities.text.FontManager;
+import com.glutilities.text.texture.Charset;
+import com.glutilities.text.texture.FontLoader;
+import com.glutilities.text.texture.TextFormat;
 import com.glutilities.ui.GLWindow;
 import com.glutilities.ui.MasterRenderer;
+import com.glutilities.ui.RenderContext;
 import com.glutilities.ui.fbo.FBO;
 import com.glutilities.util.ArrayUtils;
 import com.glutilities.util.EarClipper;
 import com.glutilities.util.Vertex3f;
+import com.glutilities.util.Vertex4f;
 import com.glutilities.util.matrix.Matrix4f;
 import com.glutilities.util.matrix.MatrixMath;
 
@@ -49,9 +52,13 @@ public class TestRenderer extends MasterRenderer {
 	private VBO origin;
 	private float[] clipvertcolors;
 	private float[] tricolors;
+	private FontLoader fl;
+	private Charset chr;
+	private TextFormat textFormat;
+	private String text = "ASDF";
 
 	@Override
-	public void init(GLWindow window) {
+	public void init(RenderContext context) {
 		// float[] vertices = new float[] { -1, -1, 0, -1, 1, 0, 1, 1, 0, 1, -1,
 		// 0 };
 		float[] vertices = new float[] { -1, -1, 0, -1, -0.5f, 0, -0.5f, -0.5f, 0, -0.5f, -1, 0 };
@@ -64,7 +71,7 @@ public class TestRenderer extends MasterRenderer {
 		origin = new VBO(new float[] { -1, 0, 0, 1, 0, 0, 0, -1, 0, 0, 1, 0 }, colors, null, null, null, GL11.GL_LINES);
 		origin.create();
 
-		clip();
+		//clip();
 
 		fbo1VBO = new VBO(vertices, colors, normals, texcoords, null, GL11.GL_QUADS);
 		fbo1VBO.create();
@@ -75,19 +82,28 @@ public class TestRenderer extends MasterRenderer {
 		terrainVBO = buildTerrainVBO();
 		terrainVBO.create();
 
-		GL11.glPointSize(7);
-
 		// Create a model manager to load models
 		mm = new BufferedModelManager();
 		mm.load(new File("res/models/car2.obj"), "test");
 
 		// Create a font manager to load fonts
 		fm = new FontManager();
-		fm.load(new Font("Arial", Font.PLAIN, 12), "test");
+		// fm.load(new Font("Arial", Font.PLAIN, 12), "test");
+		fl = new FontLoader();
+		textFormat = new TextFormat();
+		fl.setTextFormat(textFormat);
+		textFormat.textureScale = 4;
+		textFormat.textColor = new Vertex4f(1, 1, 1, 1);
+		textFormat.bgColor = new Vertex4f(0, 0, 0, 1);
+		try {
+			chr = fl.load(new com.glutilities.text.texture.Font("Arial", Font.PLAIN), "test");
+		} catch (IOException e) {
+			System.out.println("Unable to load font");
+		}
 
 		// Create 2 shader programs
-		ShaderObject vertex = new ShaderObject(ARBVertexShader.GL_VERTEX_SHADER_ARB, "testv", null);
-		ShaderObject fragment = new ShaderObject(ARBFragmentShader.GL_FRAGMENT_SHADER_ARB, "testf", null);
+		VertexShader vertex = new VertexShader("testv", null);
+		FragmentShader fragment = new FragmentShader("testf", null);
 		updateShaderCode(vertex, fragment);
 		vertex.create();
 		fragment.create();
@@ -96,75 +112,18 @@ public class TestRenderer extends MasterRenderer {
 		program.link();
 		System.out.println(program.isLinked() + ": " + program.getError());
 
-		ShaderObject fvertex = new ShaderObject(ARBVertexShader.GL_VERTEX_SHADER_ARB, "finalv",
-				loadFile(new File("res/shaders/test.vsh")));
-		ShaderObject ffragment = new ShaderObject(ARBFragmentShader.GL_FRAGMENT_SHADER_ARB, "finalf",
-				loadFile(new File("res/shaders/test.fsh")));
-		fvertex.create();
-		ffragment.create();
-		fprogram = new ShaderProgram(fvertex, ffragment, null, null, null);
-		fprogram.create();
-		fprogram.link();
-		System.out.println(fprogram.isLinked() + ": " + fprogram.getError());
-
-		// fprogram.enable();
-
-		// fprogram.disable();
-
 		// Set up some matrices
-		updateMatrices(window);
+		updateMatrices(context);
 
-		// Create some FBOs
-		reflectionFBO = new FBO(800, 600);
-		reflectionFBO.create();
-		reflectionFBO.unbind();
+		
 
-		refractionFBO = new FBO(800, 600);
-		refractionFBO.create();
-		refractionFBO.unbind();
-
-		// add callbacks
-		window.setKeyCallback(new GLFWKeyCallbackI() {
-
-			@Override
-			public void invoke(long windowID, int key, int scancode, int action, int mods) {
-				if (action == GLFW.GLFW_PRESS) {
-					switch (key) {
-					case GLFW.GLFW_KEY_R:
-						updateShaderCode(vertex, fragment);
-						program.link();
-						System.out.println("Shader Linked\n" + program.getError());
-						break;
-					case GLFW.GLFW_KEY_M:
-						updateMatrices(window);
-						System.out.println("Updated matrices");
-						break;
-					case GLFW.GLFW_KEY_Z:
-						clip();
-						System.out.println("Re-ran clipping algorithm");
-					}
-				}
-			}
-		});
-
-		fpsThread = new Thread(() -> {
-			boolean done = false;
-			while (!done) {
-				try {
-					Thread.sleep(1000);
-					TestRenderer.this.fps = window.resetFrameCounter();
-				} catch (InterruptedException e) {
-					done = true;
-				}
-			}
-		});
-		fpsThread.start();
+		
 	}
 
 	@Override
-	public void render(GLWindow window) {
-		clearViewport(window.getWindowWidth(), window.getWindowHeight());
-
+	public void render(RenderContext context) {
+		clearViewport(context.getWidth(), context.getHeight());
+		
 		// GL11.glEnable(GL30.GL_CLIP_DISTANCE0);
 
 		// fbo.bind();
@@ -172,26 +131,39 @@ public class TestRenderer extends MasterRenderer {
 		program.enable();
 
 		program.glUniformMatrix4f("projectionMatrix", true, orthoMat);
-		float scale = 0.1f;
+		float scale = 0.05f;
+		// float scale = 0.2f;
 		Matrix4f transform = Matrix4f.IDENTITY_MATRIX;
-		transform = MatrixMath.scale(transform, new Vertex3f(scale, -scale * window.getWindowAspect(), scale));
-		transform = MatrixMath.translate(transform, new Vertex3f(-0.4f, 0.5f, 0));
+		//transform = MatrixMath.rotate(transform, (float) GLFW.glfwGetTime() / 1f, 0b001);
+		
+		transform = MatrixMath.scale(transform, new Vertex3f(scale, scale * 4f, scale));
+		// transform = MatrixMath.translate(transform, new Vertex3f(-0.7f, 0.8f,
+		// 0));
+		transform = MatrixMath.translate(transform, new Vertex3f(-0.9f, -0.9f, 0));
+		
 		program.glUniformMatrix4f("transformMatrix", true, transform);
 		origin.draw();
-		clipperVBO.draw();
-		clipperVBO2.draw();
+		// clipperVBO.draw();
+		// clipperVBO2.draw();
+		// FontManager.drawString(fm.get("test"), "Test", transform, 10f,
+		// program, "transformMatrix");
+		textFormat.leading = 0.1f;
+		textFormat.kerning = 0;
+		chr.draw("In a world, where leafy bullies people with mental disablilities...", textFormat, transform, program, "transformMatrix", "glyphTex");
 		// render2D(window, "R: Recompile Shader");
 
 		// DRAW ON FBO
 		/*
-		 * reflectionFBO.bind(); program.glUniform4f("plane", new Vertex4f(0, 0, 1, 1));
-		 * clearViewport(window.getWindowWidth(), window.getWindowHeight());
+		 * reflectionFBO.bind(); program.glUniform4f("plane", new Vertex4f(0, 0,
+		 * 1, 1)); clearViewport(window.getWindowWidth(),
+		 * window.getWindowHeight());
 		 * 
 		 * program.glUniformMatrix4f("projectionMatrix", true, perspMat);
 		 * render3D(window, true); reflectionFBO.unbind();
 		 * 
-		 * refractionFBO.bind(); program.glUniform4f("plane", new Vertex4f(0, 0, -1,
-		 * -1)); clearViewport(window.getWindowWidth(), window.getWindowHeight());
+		 * refractionFBO.bind(); program.glUniform4f("plane", new Vertex4f(0, 0,
+		 * -1, -1)); clearViewport(window.getWindowWidth(),
+		 * window.getWindowHeight());
 		 * 
 		 * program.glUniformMatrix4f("projectionMatrix", true, perspMat);
 		 * render3D(window, false); refractionFBO.unbind();
@@ -205,63 +177,107 @@ public class TestRenderer extends MasterRenderer {
 
 		/*
 		 * fprogram.enable(); fprogram.glUniform1i("fbo", 0);
-		 * fprogram.glUniform1i("depthfbo", 1); reflectionFBO.renderToVBO(fbo1VBO);
-		 * refractionFBO.renderToVBO(fbo2VBO); // fbo.renderToQuad(-1, -1, -1, 1, 1, 1,
-		 * 1, -1); fprogram.disable();
+		 * fprogram.glUniform1i("depthfbo", 1);
+		 * reflectionFBO.renderToVBO(fbo1VBO);
+		 * refractionFBO.renderToVBO(fbo2VBO); // fbo.renderToQuad(-1, -1, -1,
+		 * 1, 1, 1, 1, -1); fprogram.disable();
 		 */
 	}
 
 	@Override
-	public void update(GLWindow window) {
-		updateMatrices(window);
+	public void update(RenderContext context) {
+		updateMatrices(context);
 	}
 
 	@Override
-	public void exit(GLWindow window) {
+	public void exit(RenderContext context) {
 		terrainVBO.delete();
 		fbo1VBO.delete();
 		fbo2VBO.delete();
-		clipperVBO.delete();
+		//clipperVBO.delete();
 		program.delete();
-		fprogram.delete();
-		reflectionFBO.delete();
-		refractionFBO.delete();
-		fpsThread.interrupt();
+		// fprogram.delete();
+		// reflectionFBO.delete();
+		// refractionFBO.delete();
+		//fpsThread.interrupt();
 	}
+	
+	@Override
+	public void keyPressed(RenderContext context, int key, int action) {
+		if (action == GLFW.GLFW_PRESS) {
+			switch (key) {
+			case GLFW.GLFW_KEY_R:
+				updateShaderCode(program.getVertexShader(), program.getFragmentShader());
+				program.link();
+				System.out.println("Shader Linked\n" + program.getError());
+				break;
+			case GLFW.GLFW_KEY_M:
+				updateMatrices(context);
+				System.out.println("Updated matrices");
+				break;
+			case GLFW.GLFW_KEY_T:
+				text = loadFile(new File("res/shaders/samplevertex.vsh"));
+				break;
+			}
+		}
+	}
+//	
+//	private void processInput() {
+//		if (action == GLFW.GLFW_PRESS) {
+//			switch (key) {
+//			case GLFW.GLFW_KEY_R:
+//				updateShaderCode(vertex, fragment);
+//				program.link();
+//				System.out.println("Shader Linked\n" + program.getError());
+//				break;
+//			case GLFW.GLFW_KEY_M:
+//				updateMatrices(context);
+//				System.out.println("Updated matrices");
+//				break;
+//			case GLFW.GLFW_KEY_Z:
+//				clip();
+//				System.out.println("Re-ran clipping algorithm");
+//				break;
+//			case GLFW.GLFW_KEY_T:
+//				text = loadFile(new File("res/shaders/samplevertex.vsh"));
+//				break;
+//			}
+//		}
+//	}
 
-	private void clip() {
-		Test.clipverts = EarClipper.clip(Test.verts);
-		clipvertcolors = new float[Test.verts.length];
-		tricolors = new float[Test.clipverts.length];
-		ArrayUtils.fill(clipvertcolors, new float[] { 0, 0, 1 });
-		ArrayUtils.fillrandom(tricolors, 9);
-		ArrayUtils.fillmask(Test.clipverts, new float[] { 0, 0, -0.3f }, 0b001);
-		if (clipperVBO == null) {
-			clipperVBO = new VBO(Test.verts, clipvertcolors, null, null, null, GL11.GL_POINTS);
-		} else {
-			clipperVBO.setVertices(Test.verts);
-			clipperVBO.setColors(clipvertcolors);
-			clipperVBO.delete();
-		}
-		clipperVBO.create();
-		if (clipperVBO2 == null) {
-			clipperVBO2 = new VBO(Test.clipverts, tricolors, null, null, null, GL11.GL_TRIANGLES);
-		} else {
-			clipperVBO2.setVertices(Test.clipverts);
-			clipperVBO2.setColors(tricolors);
-			clipperVBO2.delete();
-		}
-		clipperVBO2.create();
-	}
+//	private void clip() {
+//		Test.clipverts = EarClipper.clip(Test.verts, 200, 0.5f);
+//		clipvertcolors = new float[Test.verts.length];
+//		tricolors = new float[Test.clipverts.length];
+//		ArrayUtils.fill(clipvertcolors, new float[] { 0, 0, 1 });
+//		ArrayUtils.fillrandom(tricolors, 9);
+//		ArrayUtils.fillmask(Test.clipverts, new float[] { 0, 0, -0.3f }, 0b001);
+//		if (clipperVBO == null) {
+//			clipperVBO = new VBO(Test.verts, clipvertcolors, null, null, null, GL11.GL_POINTS);
+//		} else {
+//			clipperVBO.setVertices(Test.verts);
+//			clipperVBO.setColors(clipvertcolors);
+//			clipperVBO.delete();
+//		}
+//		clipperVBO.create();
+//		if (clipperVBO2 == null) {
+//			clipperVBO2 = new VBO(Test.clipverts, tricolors, null, null, null, GL11.GL_TRIANGLES);
+//		} else {
+//			clipperVBO2.setVertices(Test.clipverts);
+//			clipperVBO2.setColors(tricolors);
+//			clipperVBO2.delete();
+//		}
+//		clipperVBO2.create();
+//	}
 
 	private void clearViewport(int width, int height) {
 		GL11.glClear(GL11.GL_COLOR_BUFFER_BIT | GL11.GL_DEPTH_BUFFER_BIT);
 		GL11.glViewport(0, 0, width, height);
 	}
 
-	private void updateMatrices(GLWindow window) {
+	private void updateMatrices(RenderContext context) {
 		orthoMat = MatrixMath.createOrthographicMatrix(-1, 1, 1, -1, -1, 1);
-		perspMat = MatrixMath.createPerspectiveMatrix(80f, window.getWindowAspect(), 0.1f, 100f);
+		perspMat = MatrixMath.createPerspectiveMatrix(80f, context.getAspect(), 0.1f, 100f);
 	}
 
 	private void updateShaderCode(ShaderObject vertex, ShaderObject fragment) {

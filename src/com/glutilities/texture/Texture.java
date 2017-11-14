@@ -2,6 +2,8 @@ package com.glutilities.texture;
 
 import org.lwjgl.opengl.GL11;
 
+import com.glutilities.core.Bindable;
+
 /**
  * Represents a texture that has been uploaded to VRAM via OpenGL. No texture
  * data is stored inside.
@@ -9,7 +11,7 @@ import org.lwjgl.opengl.GL11;
  * @author Hanavan99
  *
  */
-public class Texture {
+public class Texture implements Bindable {
 
 	private final int id;
 	private final String name;
@@ -61,13 +63,15 @@ public class Texture {
 	public int getHeight() {
 		return height;
 	}
-
-	/**
-	 * Binds the texture to OpenGL so that any subsequent triangles or quads that
-	 * are drawn are shaded with the texture.
-	 */
+	
+	@Override
 	public void bind() {
 		GL11.glBindTexture(GL11.GL_TEXTURE_2D, id);
+	}
+	
+	@Override
+	public void unbind() {
+		GL11.glBindTexture(GL11.GL_TEXTURE_2D, 0);
 	}
 
 }

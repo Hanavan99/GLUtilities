@@ -3,40 +3,46 @@ package com.glutilities.ui;
 public abstract class MasterRenderer {
 
 	/**
-	 * Called when the parent window's {@code init()} function is called.
+	 * Called when the render target is initializing.
 	 * 
-	 * @param parent the parent window
+	 * @param context the render context
 	 */
-	public void init(GLWindow parent) {
+	public void init(RenderContext context) {
 
 	}
 
 	/**
-	 * Called when the window is rendering the scene.
+	 * Called when the render target is rendering the scene.
 	 * 
-	 * @param parent the parent window
+	 * @param context the render context
 	 */
-	public void render(GLWindow parent) {
+	public void render(RenderContext context) {
 
 	}
 
 	/**
-	 * Called when the window has received some sort of update, such as a
+	 * Called when the render target has received some sort of update, such as a
 	 * resizing.
 	 * 
-	 * @param parent the parent window
+	 * @param context the render context
 	 */
-	public void update(GLWindow parent) {
+	public void update(RenderContext context) {
 
 	}
 
 	/**
-	 * Called when the window has been successfully closed.
+	 * Called when the render target is being closed.
 	 * 
-	 * @param parent the parent window.
+	 * @param context the render context
 	 */
-	public void exit(GLWindow parent) {
+	public void exit(RenderContext context) {
 
 	}
+	
+	public void keyPressed(RenderContext context, int key, int action) {
+		
+	}
+	
+//	public void mouseClicked(int mouseID, )
 
 }

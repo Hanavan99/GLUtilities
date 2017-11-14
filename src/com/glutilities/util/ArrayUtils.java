@@ -59,6 +59,14 @@ public class ArrayUtils {
 		}
 		return result;
 	}
+	
+	public static int[] convert(byte[] array) {
+		int[] result = new int[array.length];
+		for (int i = 0; i < result.length; i++) {
+			result[i] = array[i] < 0 ? 256 + (int) array[i] : (int) array[i];
+		}
+		return result;
+	}
 
 	/**
 	 * Fills the array with the specified pattern. If the array size is not a
@@ -98,6 +106,15 @@ public class ArrayUtils {
 			array[i] = r;
 			array[i + 1] = g;
 			array[i + 2] = b;
+		}
+	}
+	
+	public static void printArray(float[] array, int valsPerLine) {
+		for (int i = 0; i < array.length; i++) {
+			System.out.print(array[i] + ", ");
+			if (i % valsPerLine == valsPerLine - 1) {
+				System.out.println();
+			}
 		}
 	}
 

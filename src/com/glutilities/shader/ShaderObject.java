@@ -1,10 +1,6 @@
 package com.glutilities.shader;
 
-import org.lwjgl.opengl.ARBFragmentShader;
-import org.lwjgl.opengl.ARBGeometryShader4;
 import org.lwjgl.opengl.ARBShaderObjects;
-import org.lwjgl.opengl.ARBTessellationShader;
-import org.lwjgl.opengl.ARBVertexShader;
 
 import com.glutilities.core.Reusable;
 
@@ -14,17 +10,12 @@ import com.glutilities.core.Reusable;
  * @author Hanavan99
  *
  */
-public class ShaderObject implements Reusable {
+public abstract class ShaderObject implements Reusable {
 
 	/**
 	 * The shader ID.
 	 */
-	private int shader;
-
-	/**
-	 * The type of the shader.
-	 */
-	private int shaderType;
+	protected int shader;
 
 	/**
 	 * The user-defined name of the shader.
@@ -37,19 +28,13 @@ public class ShaderObject implements Reusable {
 	private String code;
 
 	/**
-	 * Creates a new shader object with the specific shader type, name, and
+	 * Creates a new shader object with a user-defined name and
 	 * code/program.
 	 * 
-	 * @param shaderType the type of shader
 	 * @param name the user-defined name of the shader; optional
 	 * @param code the code that is compiled into the shader program
 	 */
-	public ShaderObject(int shaderType, String name, String code) {
-		if (shaderType != ARBVertexShader.GL_VERTEX_SHADER_ARB && shaderType != ARBFragmentShader.GL_FRAGMENT_SHADER_ARB && shaderType != ARBGeometryShader4.GL_GEOMETRY_SHADER_ARB && shaderType != ARBTessellationShader.GL_TESS_CONTROL_SHADER
-				&& shaderType != ARBTessellationShader.GL_TESS_EVALUATION_SHADER) {
-			throw new IllegalArgumentException("Invalid shader type");
-		}
-		this.shaderType = shaderType;
+	public ShaderObject(String name, String code) {
 		this.name = name;
 		this.code = code;
 	}
@@ -61,15 +46,6 @@ public class ShaderObject implements Reusable {
 	 */
 	public int getShaderID() {
 		return shader;
-	}
-
-	/**
-	 * Gets the type of shader.
-	 * 
-	 * @return the type of shader
-	 */
-	public int getShaderType() {
-		return shaderType;
 	}
 
 	/**
@@ -99,11 +75,6 @@ public class ShaderObject implements Reusable {
 	 */
 	public void setCode(String code) {
 		this.code = code;
-	}
-
-	@Override
-	public void create() {
-		this.shader = ARBShaderObjects.glCreateShaderObjectARB(shaderType);
 	}
 
 	@Override

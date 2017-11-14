@@ -33,6 +33,10 @@ public class MatrixMath {
 	public static Matrix4f scale(Matrix4f src, Vertex3f scale) {
 		return src.set(0, 0, src.get(0, 0) * scale.getX()).set(1, 1, src.get(1, 1) * scale.getY()).set(2, 2, src.get(2, 2) * scale.getZ());
 	}
+	
+	public static Vertex3f getScale(Matrix4f src) {
+		return new Vertex3f(src.get(0, 0), src.get(1, 1), src.get(2, 2));
+	}
 
 	/**
 	 * Rotates a matrix by a given angle, with the given rotation mask.

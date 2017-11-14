@@ -9,6 +9,7 @@ import org.lwjgl.opengl.GL30;
 import com.glutilities.buffer.VBO;
 import com.glutilities.core.Bindable;
 import com.glutilities.core.Reusable;
+import com.glutilities.util.ArrayUtils;
 
 /**
  * Represents an alternate Frame Buffer Object that OpenGL can draw onto.
@@ -64,6 +65,14 @@ public class FBO implements Bindable, Reusable {
 	public void setSize(int width, int height) {
 		this.width = width;
 		this.height = height;
+	}
+	
+	public int getWidth() {
+		return width;
+	}
+	
+	public int getHeight() {
+		return height;
 	}
 
 	@Override
@@ -167,6 +176,14 @@ public class FBO implements Bindable, Reusable {
 	@Deprecated
 	public void renderToScreen(int width, int height) {
 		GL30.glBlitFramebuffer(0, 0, width, height, 0, 0, width, height, GL11.GL_COLOR_BUFFER_BIT | GL11.GL_DEPTH_BUFFER_BIT, GL11.GL_NEAREST);
+	}
+	
+	public int[] readPixels() {
+		GL11.glReadBuffer(GL30.GL_COLOR_ATTACHMENT0);
+		byte[] pixels = new byte[width * height * 3];
+		GL11.glReadPixels(0, 0, width, height, GL11.GL_RGB, GL11.GL_UNSIGNED_BYTE, ByteBuffer.wrap(pixels));
+		int[] finalData = ArrayUtils.convert(pixels);
+		return finalData;
 	}
 
 }

@@ -2,8 +2,6 @@ package com.glutilities.util;
 
 import org.lwjgl.opengl.GL11;
 
-import com.glutilities.util.matrix.Matrix4f;
-
 public class GLMath {
 
 	/**
@@ -85,6 +83,7 @@ public class GLMath {
 		return result;
 	}
 
+	@Deprecated
 	public static void createPerspective(double fovy, double aspect, double znear, double zfar) {
 		double fh = Math.tan(fovy / 360 * Math.PI) * znear;
 		double fw = fh * aspect;

@@ -1,158 +1,101 @@
 package com.glutilities.text;
 
+import java.awt.Color;
 import java.awt.Font;
-import java.awt.Shape;
-import java.awt.font.FontRenderContext;
-import java.awt.font.GlyphVector;
-import java.awt.geom.AffineTransform;
-import java.awt.geom.PathIterator;
+import java.awt.Graphics;
+import java.awt.image.BufferedImage;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
 
 import org.lwjgl.opengl.GL11;
 
 import com.glutilities.buffer.VBO;
 import com.glutilities.resource.ResourceLoader;
-import com.glutilities.util.ArrayUtils;
-import com.glutilities.util.EarClipper;
-import com.glutilities.util.GLMath;
+import com.glutilities.texture.Texture;
+import com.glutilities.util.Rectangle;
+import com.glutilities.util.Vertex2f;
+import com.glutilities.util.Vertex4f;
 
-public class FontLoader extends ResourceLoader<Charset, String, Font> {
+public class FontLoader extends ResourceLoader<Charset, String, com.glutilities.text.Font> {
 
-	private static final AffineTransform transform = new AffineTransform(1, 0, 0, 1, 0, 0);
-	
+	private static final int GLYPHS = 16;
+
 	@Override
-	public Charset load(Font src, String key) throws IOException {
-		FontRenderContext context = new FontRenderContext(transform, true, true);
-		List<NewGlyph> glyphs = new ArrayList<NewGlyph>();
-		for (char c = (char) 0; c < (char) 256; c++) {
-			GlyphVector vector = src.createGlyphVector(context, new char[] { c });
-			Shape glyph = vector.getOutline(0, 0);
-			PathIterator pathIterator = glyph.getPathIterator(transform);
-			float width = (float) vector.getLogicalBounds().getWidth();
-			float height = (float) vector.getLogicalBounds().getHeight();
-			float[] xcoords = new float[1024];
-			float[] ycoords = new float[1024];
-			int[] flags = new int[1024];
-			int i = 0;
-			while (!pathIterator.isDone()) {
-				float[] data = new float[6];
-				int code = pathIterator.currentSegment(data);
-				pathIterator.next();
-				flags[i] = code;
-				switch (code) {
-				case PathIterator.SEG_CLOSE:
-					xcoords[i] = data[0];
-					ycoords[i] = data[1];
-					i++;
-					break;
-				case PathIterator.SEG_CUBICTO:
-					xcoords[i] = data[0];
-					ycoords[i] = data[1];
-					xcoords[i + 1] = data[2];
-					ycoords[i + 1] = data[3];
-					xcoords[i + 2] = data[4];
-					ycoords[i + 2] = data[5];
-					i += 3;
-					break;
-				case PathIterator.SEG_LINETO:
-					xcoords[i] = data[0];
-					ycoords[i] = data[1];
-					i++;
-					break;
-				case PathIterator.SEG_MOVETO:
-					xcoords[i] = data[0];
-					ycoords[i] = data[1];
-					i++;
-					break;
-				case PathIterator.SEG_QUADTO:
-					xcoords[i] = data[0];
-					ycoords[i] = data[1];
-					xcoords[i + 1] = data[2];
-					ycoords[i + 1] = data[3];
-					i += 2;
-					break;
-				}
-			}
-			glyphs.add(buildGlyph(c, width, height, xcoords, ycoords, flags));
+	public Charset load(com.glutilities.text.Font src, String key) throws IOException {
+		// create new glyph array
+		Glyph[] glyphs = new Glyph[128];
+
+		// get the max width of the glyphs
+		final int glyphSize = (int) Math.pow(2, src.getTextureScale());
+
+		// create a new image to draw the glyphs on
+		final BufferedImage image = new BufferedImage(glyphSize * GLYPHS, glyphSize * GLYPHS * 2, BufferedImage.TYPE_INT_ARGB);
+		Font internalFont = new Font(src.getName(), src.getStyle(), glyphSize);
+		Graphics g = image.getGraphics();
+		Vertex4f backColor = src.getBackColor();
+		g.setColor(new Color(backColor.getR(), backColor.getG(), backColor.getB(), backColor.getA()));
+		g.fillRect(0, 0, glyphSize * GLYPHS, glyphSize * GLYPHS * 2);
+		//FontMetrics metrics = g.getFontMetrics();
+		g.setFont(internalFont);
+		Vertex4f textColor = src.getTextColor();
+		g.setColor(new Color(textColor.getR(), textColor.getG(), textColor.getB(), textColor.getA()));
+
+		// set up vbo stuff
+		float[] vboVerts = new float[GLYPHS * GLYPHS * 4 * 3];
+		float[] vboTexCoords = new float[GLYPHS * GLYPHS * 4 * 3];
+		// int textHeight = internalFont.getSize() * (metrics.getAscent() +
+		// metrics.getDescent()) / metrics.getAscent();
+		for (char c = 0; c < glyphs.length; c++) {
+			int x = c % GLYPHS;
+			int y = c / GLYPHS;
+			int imgx = x * glyphSize;
+			int imgy = y * glyphSize * 2;
+			int textWidth = g.getFontMetrics().charWidth(c);
+			float texx = imgx / (float) (GLYPHS * glyphSize);
+			float texy = imgy / (float) (GLYPHS * glyphSize) / 2;
+			float texy1 = (imgy + glyphSize) / (float) (GLYPHS * glyphSize) / 2;
+			Rectangle texCoords = new Rectangle(texx, texy, texx + (textWidth / (float) (GLYPHS * glyphSize)), texy1);
+			g.drawString(String.valueOf(c), imgx, imgy + (int) (glyphSize * 0.78f));
+			float width = textWidth / 20f * (float) Math.pow(2, 6 - src.getTextureScale());
+			// float texWidth = textWidth / (float) glyphSize;
+			float[] averts = new float[] { 0, 0, 0, 0, 1, 0, width, 1, 0, width, 0, 0 };
+			Vertex2f a = texCoords.getMin();
+			Vertex2f b = texCoords.getMax();
+			float[] atexCoords = new float[] { a.getX(), a.getY(), 0, a.getX(), b.getY(), 0, b.getX(), b.getY(), 0, b.getX(), a.getY(), 0 };
+			System.arraycopy(averts, 0, vboVerts, (int) c * 12, averts.length);
+			System.arraycopy(atexCoords, 0, vboTexCoords, (int) c * 12, atexCoords.length);
+			glyphs[(int) c] = new Glyph(c, texCoords, width);
 		}
-		return new Charset(key, glyphs.toArray(new NewGlyph[0]));
+		VBO vbo = new VBO(vboVerts, null, null, vboTexCoords, null, GL11.GL_QUADS);
+		vbo.create();
+		Texture charmap = build(image, "a");
+		// ImageIO.write(image, "PNG", new File("res/test.png"));
+		return new Charset(key, src, glyphs, vbo, charmap);
 	}
-	
-	private NewGlyph buildGlyph(char c, float width, float height, float[] xPoints, float[] yPoints, int[] flags) {
-		List<VBO> vbos = new ArrayList<VBO>();
-		List<Float> abscoords = new ArrayList<Float>();
-		float dx = 0;
-		float dy = 0;
-		float lastx = 0;
-		float lasty = 0;
-		int i = 0;
-		float zoff = 0;
-		while (i < xPoints.length) {
-			switch (flags[i]) {
-			case PathIterator.SEG_CLOSE:
-				abscoords.add(lastx);
-				abscoords.add(lasty);
-				abscoords.add(zoff);
-				abscoords.add(dx);
-				abscoords.add(dy);
-				abscoords.add(zoff);
-				VBO vbo = new VBO(buildMesh(ArrayUtils.toPrimitiveArray(abscoords.toArray(new Float[0]))), null, null, null, null, GL11.GL_TRIANGLES);
-				vbo.create();
-				vbos.add(vbo);
-				abscoords.clear();
-				i++;
-				break;
-			case PathIterator.SEG_CUBICTO:
-				abscoords.add(lastx);
-				abscoords.add(lasty);
-				abscoords.add(zoff);
-				abscoords.add(lastx = xPoints[i + 2]);
-				abscoords.add(lasty = yPoints[i + 2]);
-				abscoords.add(zoff);
-				i += 3;
-				break;
-			case PathIterator.SEG_LINETO:
-				abscoords.add(lastx);
-				abscoords.add(lasty);
-				abscoords.add(zoff);
-				abscoords.add(lastx = xPoints[i]);
-				abscoords.add(lasty = yPoints[i]);
-				abscoords.add(zoff);
-				i++;
-				break;
-			case PathIterator.SEG_MOVETO:
-				dx = lastx = xPoints[i];
-				dy = lasty = yPoints[i];
-				i++;
-				break;
-			case PathIterator.SEG_QUADTO:
-				float _x = lastx;
-				float _y = lasty;
-				for (float t = 0; t <= 1; t += 0.1) {
-					float[] b = GLMath.quadBezier(_x, _y, xPoints[i], yPoints[i], xPoints[i + 1], yPoints[i + 1], t);
-					abscoords.add(lastx);
-					abscoords.add(lasty);
-					abscoords.add(zoff);
-					abscoords.add(lastx = b[0]);
-					abscoords.add(lasty = b[1]);
-					abscoords.add(zoff);
-				}
-				i += 2;
-				break;
-			}
+
+	public Texture build(BufferedImage img, String key) throws IOException {
+		int tex = GL11.glGenTextures();
+		GL11.glBindTexture(GL11.GL_TEXTURE_2D, tex);
+		GL11.glPixelStorei(GL11.GL_UNPACK_ALIGNMENT, 1);
+		GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_MIN_FILTER, GL11.GL_LINEAR);
+		GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_MAG_FILTER, GL11.GL_LINEAR);
+		GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_WRAP_S, GL11.GL_CLAMP);
+		GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_WRAP_T, GL11.GL_CLAMP);
+		GL11.glTexEnvf(GL11.GL_TEXTURE_ENV, GL11.GL_TEXTURE_ENV_MODE, GL11.GL_MODULATE);
+		Texture t = null;
+		float[] data = new float[img.getWidth() * img.getHeight() * 4];
+		for (int i = 0; i < img.getWidth() * img.getHeight(); i++) {
+			int x = i % img.getWidth();
+			int y = i / img.getWidth();
+			Color c = new Color(img.getRGB(x, y), true);
+			data[i * 4 + 0] = (float) c.getRed() / 255;
+			data[i * 4 + 1] = (float) c.getGreen() / 255;
+			data[i * 4 + 2] = (float) c.getBlue() / 255;
+			data[i * 4 + 3] = (float) c.getAlpha() / 255;
+
 		}
-		return new NewGlyph(c, width, height, vbos.toArray(new VBO[0]));
-	}
-	
-	private float[] buildMesh(float[] vertices) {
-//		List<Float> mesh = new ArrayList<Float>();
-//		for (int i = 0; i < vertices.length; i++) {
-//			mesh.add(vertices[i]);
-//		}
-//		return ArrayUtils.toPrimitiveArray(mesh.toArray(new Float[0]));
-		return EarClipper.clip(vertices, 5000, 0.5f);
+		GL11.glTexImage2D(GL11.GL_TEXTURE_2D, 0, GL11.GL_RGBA, img.getWidth(), img.getHeight(), 0, GL11.GL_RGBA, GL11.GL_FLOAT, data);
+		t = new Texture(tex, key, img.getWidth(), img.getHeight());
+		return t;
 	}
 
 	@Override

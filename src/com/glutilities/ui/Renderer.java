@@ -1,72 +1,46 @@
 package com.glutilities.ui;
 
+import com.glutilities.shader.ShaderProgram;
+
 /**
- * Abstract class for defining a renderer for a scene or UI system.
+ * Abstract class for defining a renderer for a particular type of object, or
+ * for some type of UI element.
  * 
  * @author Hanavan99
  *
  */
-public abstract class Renderer {
+public abstract class Renderer<E> {
 
 	/**
-	 * Tells the renderer to use the perspective scene described in the
-	 * {@code Scene} class.
-	 */
-	public static final int PERSPECTIVE_SCENE = 0x0;
-	/**
-	 * Tells the renderer to use the orthographic scene described in the
-	 * {@code Scene} class.
-	 */
-	public static final int ORTHOGRAPHIC_SCENE = 0x1;
-	/**
-	 * Tells the renderer to call the {@code setup()} method which will set up a
-	 * specific scene for this renderer.
-	 */
-	public static final int CUSTOM_SCENE = 0x2;
-
-	/**
-	 * The render mode that determines how this renderer is used.
-	 */
-	private final int renderMode;
-
-	/**
-	 * Creates a new {@code Renderer} object with the specified render mode. If an
-	 * invalid render mode is defined, the scene will not be rendered.
+	 * This method is called to set up this renderer, and the {@code render()}
+	 * method is called every frame when the main loop is running. This method
+	 * can be used to create any resources that will be used for rendering.
 	 * 
-	 * @param renderMode
-	 *            The render mode
+	 * @param context the render context
 	 */
-	public Renderer(int renderMode) {
-		this.renderMode = renderMode;
-	}
-
-	/**
-	 * Gets the render mode of the renderer.
-	 * 
-	 * @return the render mode
-	 */
-	public int getRenderMode() {
-		return renderMode;
-	}
-
-	/**
-	 * If the render mode is set to {@code CUSTOM_SCENE}, this method is called to
-	 * set up that scene, and the {@code render()} method is called directly after.
-	 * 
-	 * @param width
-	 *            the width of the viewort
-	 * @param height
-	 *            the height of the viewport
-	 * @param aspect
-	 *            the aspect ratio of the viewport; width / height
-	 */
-	public void setup(int width, int height, float aspect) {
+	public void setup(RenderContext context) {
 		// Does nothing by default
 	}
 
 	/**
-	 * Renders the scene.
+	 * Renders a particular item on the screen using the specified shader
+	 * program. A shader program should be passed in by the calling class. If no
+	 * shader program has been written, there are default shader implementations
+	 * that can be used for debugging purposes.
+	 * 
+	 * @param context the render context
+	 * @param program the shader program used to render objects; should not be
+	 *            null
+	 * @param object the object to render
 	 */
-	public abstract void render();
+	public abstract void render(RenderContext context, ShaderProgram program, E object);
+
+	/**
+	 * Called when the program is closing, or when this renderer is no longer
+	 * needed. This method should delete any resources consumed by this object.
+	 */
+	public void cleanup() {
+		// does nothing by default
+	}
 
 }

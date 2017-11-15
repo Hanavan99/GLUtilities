@@ -1,0 +1,70 @@
+private VBO buildTerrainVBO() {
+		PerlinGenerator perlin = new PerlinGenerator(12345, 0.05, 0.05, 0.05, 5);
+		final int size = 256;
+		float[] points = new float[size * size * 3 * 4];
+		float[] normals = new float[size * size * 3 * 4];
+		float[] colors = new float[size * size * 3 * 4];
+		for (int i = 0; i < points.length; i += 12) {
+			int x = (i / 12) % size - (size / 2);
+			int y = (i / 12) / size - (size / 2);
+			points[i] = x;
+			points[i + 1] = y;
+			points[i + 2] = (float) perlin.noise(x, y, 0f);
+			points[i + 3] = x;
+			points[i + 4] = y + 1;
+			points[i + 5] = (float) perlin.noise(x, y + 1, 0f);
+			points[i + 6] = x + 1;
+			points[i + 7] = y + 1;
+			points[i + 8] = (float) perlin.noise(x + 1, y + 1, 0f);
+			points[i + 9] = x + 1;
+			points[i + 10] = y;
+			points[i + 11] = (float) perlin.noise(x + 1, y, 0f);
+			colors[i + 1] = 1;
+			colors[i + 4] = 1;
+			colors[i + 7] = 1;
+			colors[i + 10] = 1;
+		}
+		for (int i = 0; i < points.length; i += 12) {
+			int x = (i / 12) % size;
+			int y = (i / 12) / size;
+			Vertex3f normal00 = normal(x, y, points, size);
+			Vertex3f normal10 = normal(x + 1, y, points, size);
+			Vertex3f normal01 = normal(x, y + 1, points, size);
+			Vertex3f normal11 = normal(x + 1, y + 1, points, size);
+			normals[i] = (float) normal00.getX();
+			normals[i + 1] = (float) normal00.getY();
+			normals[i + 2] = (float) normal00.getZ();
+
+			normals[i + 3] = (float) normal01.getX();
+			normals[i + 4] = (float) normal01.getY();
+			normals[i + 5] = (float) normal01.getZ();
+
+			normals[i + 6] = (float) normal11.getX();
+			normals[i + 7] = (float) normal11.getY();
+			normals[i + 8] = (float) normal11.getZ();
+
+			normals[i + 9] = (float) normal10.getX();
+			normals[i + 10] = (float) normal10.getY();
+			normals[i + 11] = (float) normal10.getZ();
+		}
+		return new VBO(points, colors, normals, null, null, GL11.GL_QUADS);
+	}
+
+	private Vertex3f normal(int x, int y, float[] vertices, int size) {
+		float x2y1 = get(x + 1, y, vertices, size);
+		float x2y3 = get(x + 1, y + 2, vertices, size);
+		float x1y2 = get(x, y + 1, vertices, size);
+		float x3y2 = get(x + 2, y + 1, vertices, size);
+		Vertex3f a1 = new Vertex3f(0, 2, x2y3 - x2y1);
+		a1.crossProduct(new Vertex3f(2, 0, x3y2 - x1y2));
+		a1.normalize();
+		a1.negate();
+		return new Vertex3f(a1.getX(), a1.getY(), a1.getZ());
+	}
+
+	private static float get(int x, int y, float[] vertices, int size) {
+		if (x >= 0 && x < size && y >= 0 && y < size) {
+			return vertices[(y * size + x) * 12 + 2];
+		}
+		return 0;
+	}

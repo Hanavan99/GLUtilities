@@ -4,6 +4,11 @@ public class Vertex3f extends Vertex2f {
 
 	protected float z;
 
+	public Vertex3f(float f) {
+		super(f);
+		z = f;
+	}
+	
 	public Vertex3f(float x, float y, float z) {
 		super(x, y);
 		this.z = z;
@@ -30,12 +35,12 @@ public class Vertex3f extends Vertex2f {
 		y = _y;
 		z = _z;
 	}
-	
+
 	public void scale(Vertex3f b) {
 		super.scale(b);
 		z *= b.z;
 	}
-	
+
 	public void negate() {
 		super.negate();
 		z *= -1;
@@ -54,15 +59,34 @@ public class Vertex3f extends Vertex2f {
 	}
 
 	/**
-	 * @param z
-	 *            the z to set
+	 * @param z the z to set
 	 */
 	public void setZ(float z) {
 		this.z = z;
 	}
+
+	public float getR() {
+		return getX();
+	}
 	
-	public Vertex2f toVertex2() {
-		return new Vertex2f(x, y);
+	public void setR(float r) {
+		setX(r);
+	}
+	
+	public float getG() {
+		return getY();
+	}
+	
+	public void setG(float g) {
+		setY(g);
+	}
+	
+	public float getB() {
+		return getZ();
+	}
+	
+	public void setB(float b) {
+		setZ(b);
 	}
 
 }

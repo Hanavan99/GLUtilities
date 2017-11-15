@@ -1,4 +1,4 @@
-package com.glutilities.text.texture;
+package com.glutilities.text;
 
 import com.glutilities.util.Vertex4f;
 

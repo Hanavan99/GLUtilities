@@ -56,6 +56,21 @@ public class ShaderProgram implements Reusable {
 	private String error;
 
 	/**
+	 * Creates a new shader program with just a vertex shader and a fragment
+	 * shader. Generally this is the most common combination of shaders.
+	 * 
+	 * @param vertexShader the vertex shader
+	 * @param fragmentShader the fragment shader
+	 */
+	public ShaderProgram(VertexShader vertexShader, FragmentShader fragmentShader) {
+		this.vertexShader = vertexShader;
+		this.fragmentShader = fragmentShader;
+		this.geometryShader = null;
+		this.tessControlShader = null;
+		this.tessEvalShader = null;
+	}
+
+	/**
 	 * Creates a new shader program. A shader program can only contain one of
 	 * each type of shader. If you are not using a certain type of shader, set
 	 * it to null.
@@ -149,25 +164,58 @@ public class ShaderProgram implements Reusable {
 		error = ARBShaderObjects.glGetInfoLogARB(program);
 	}
 
-	public int glGetUniformLocation(String name) {
+	/**
+	 * Gets the location of the uniform variable in the shader program.
+	 * 
+	 * @param name the name of the variable
+	 * @return the location
+	 */
+	private int glGetUniformLocation(String name) {
 		return GL20.glGetUniformLocation(program, name);
 	}
 
-	public Matrix4f glGetUniformMatrix4f(String name) {
+	/**
+	 * Gets the value of a uniform matrix variable in a shader program.
+	 * 
+	 * @param name the name of the variable
+	 * @return the value
+	 */
+	public Matrix4f getMatrix4f(String name) {
 		Matrix4f matrix = new Matrix4f();
 		GL20.glGetUniformfv(program, glGetUniformLocation(name), matrix.getMatrix());
 		return matrix;
 	}
 
-	public void glUniform1i(String name, int i) {
+	/**
+	 * Sets an integer parameter for a uniform variable in a shader program. Can
+	 * also be used to set active texture index of a {@code sampler2D}.
+	 * 
+	 * @param name the name of the variable
+	 * @param i the new value
+	 */
+	public void setInt(String name, int i) {
 		GL20.glUniform1i(glGetUniformLocation(name), i);
 	}
 
-	public void glUniformMatrix4f(String name, boolean transpose, Matrix4f mat4) {
-		GL20.glUniformMatrix4fv(glGetUniformLocation(name), transpose, mat4.getMatrix());
+	/**
+	 * Sets a matrix parameter for a uniform variable in a shader program. (The
+	 * matrix is automatically transposed to correctly map to OpenGL.)
+	 * 
+	 * @param name the name of the variable
+	 * @param mat4 the new matrix
+	 */
+	public void setMatrix4f(String name, Matrix4f mat4) {
+		GL20.glUniformMatrix4fv(glGetUniformLocation(name), true, mat4.getMatrix());
 	}
 
-	public void glUniform4f(String name, Vertex4f vec4) {
+	/**
+	 * Sets a vector/vertex parameter for a uniform variable in a shader
+	 * program.
+	 * 
+	 * @param name the name of the variable
+	 * @param vec4 the new vector/vertex
+	 */
+	public void setVertex4f(String name, Vertex4f vec4) {
 		GL20.glUniform4f(glGetUniformLocation(name), vec4.getX(), vec4.getY(), vec4.getZ(), vec4.getW());
 	}
 

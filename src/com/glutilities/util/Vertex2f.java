@@ -5,6 +5,10 @@ public class Vertex2f {
 	protected float x;
 	protected float y;
 
+	public Vertex2f(float f) {
+		x = y = f;
+	}
+	
 	public Vertex2f(float x, float y) {
 		this.x = x;
 		this.y = y;

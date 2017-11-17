@@ -25,15 +25,15 @@ public class Font {
 	}
 
 	public Font(String name, int style, Vertex4f textColor) {
-		this(name, style, textColor, Vertex4f.BLACK, Vertex4f.BLACK, 0, 0, 0, DEFAULT_TEXTURE_SCALE);
+		this(name, style, textColor, Vertex4f.TRANSPARENT, Vertex4f.BLACK, 0, 0, 0, DEFAULT_TEXTURE_SCALE);
 	}
 
 	public Font(String name, int style, Vertex4f textColor, Vertex4f backColor) {
-		this(name, style, textColor, backColor, Vertex4f.BLACK, 0, 0, 0, DEFAULT_TEXTURE_SCALE);
+		this(name, style, textColor, backColor, Vertex4f.TRANSPARENT, 0, 0, 0, DEFAULT_TEXTURE_SCALE);
 	}
 
 	public Font(String name, int style, Vertex4f textColor, Vertex4f outlineColor, float outline) {
-		this(name, style, textColor, Vertex4f.BLACK, outlineColor, outline, 0, 0, DEFAULT_TEXTURE_SCALE);
+		this(name, style, textColor, Vertex4f.TRANSPARENT, outlineColor, outline, 0, 0, DEFAULT_TEXTURE_SCALE);
 	}
 
 	public Font(String name, int style, Vertex4f textColor, Vertex4f backColor, Vertex4f outlineColor, float outline, float leading, float kerning, int textureScale) {

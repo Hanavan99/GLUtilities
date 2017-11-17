@@ -1,8 +1,12 @@
 package com.glutilities.ui;
 
 import org.lwjgl.glfw.GLFW;
+import org.lwjgl.glfw.GLFWCursorPosCallback;
+import org.lwjgl.glfw.GLFWCursorPosCallbackI;
 import org.lwjgl.glfw.GLFWKeyCallback;
 import org.lwjgl.glfw.GLFWKeyCallbackI;
+import org.lwjgl.glfw.GLFWMouseButtonCallback;
+import org.lwjgl.glfw.GLFWMouseButtonCallbackI;
 import org.lwjgl.glfw.GLFWWindowSizeCallback;
 import org.lwjgl.glfw.GLFWWindowSizeCallbackI;
 import org.lwjgl.opengl.GL;
@@ -18,7 +22,7 @@ import com.glutilities.core.Reusable;
 public final class GLWindow implements Reusable {
 
 	private final RenderContext context;
-	
+
 	/**
 	 * The window ID used by GLFW.
 	 */
@@ -89,7 +93,7 @@ public final class GLWindow implements Reusable {
 			public int getHeight() {
 				return GLWindow.this.getWindowHeight();
 			}
-			
+
 		};
 	}
 
@@ -114,13 +118,19 @@ public final class GLWindow implements Reusable {
 		if (renderer != null) {
 			renderer.init(context);
 		}
-		
+
 		linkCallbacksToRenderer();
 	}
-	
+
 	public void linkCallbacksToRenderer() {
 		if (renderer != null) {
 			GLFW.glfwSetKeyCallback(window, GLFWKeyCallback.create((window, key, scancode, action, mods) -> renderer.keyPressed(context, key, action)));
+			GLFW.glfwSetMouseButtonCallback(window, GLFWMouseButtonCallback.create((window, button, action, mods) -> {
+				renderer.mouseClicked(context, button, action);
+			}));
+			GLFW.glfwSetCursorPosCallback(window, GLFWCursorPosCallback.create((window, xpos, ypos) -> {
+				renderer.mouseMoved(context, (int) xpos, (int) ypos);
+			}));
 		}
 	}
 

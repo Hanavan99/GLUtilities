@@ -22,6 +22,14 @@ public class VBO implements Reusable {
 	private int[] indices;
 	private int drawMode = GL11.GL_TRIANGLES;
 
+	public VBO(float[] vertices, float[] colors) {
+		this(vertices, colors, null, null,  null, GL11.GL_TRIANGLES);
+	}
+	
+	public VBO(float[] vertices, float[] colors, int[] indices, int drawMode) {
+		this(vertices, colors, null, null, indices, drawMode);
+	}
+	
 	public VBO(float[] vertices, float[] colors, float[] normals, float[] texcoords, int[] indices, int drawMode) {
 		this.vertices = vertices;
 		this.colors = colors;

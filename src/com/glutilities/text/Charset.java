@@ -22,7 +22,7 @@ public class Charset {
 		this.charVBO = charVBO;
 		this.charmap = charmap;
 	}
-	
+
 	public String getName() {
 		return name;
 	}
@@ -45,29 +45,29 @@ public class Charset {
 		float scale = MatrixMath.getScale(transform).getX() * 20f;
 		Matrix4f fork = (Matrix4f) transform.clone();
 		fork = MatrixMath.translate(fork, new Vertex3f(0, font.getLeading() * lines, 0));
-		// charVBO.draw();
 		charVBO.bind();
 		charmap.bind();
 		program.setInt(texSamplerName, 0);
-		for (char c : text.toCharArray()) {
-			Glyph g = getGlyphForChar(c);
-			if (g != null) {
-				program.setMatrix4f(matTransformName, fork);
-				// g.draw(program, texSamplerName);
-				fork = MatrixMath.translate(fork, new Vertex3f((g.getWidth() / 20f + font.getKerning()) * scale, 0, 0));
-				int base = c * 4;
-				charVBO.draw(base, 4);
-			}
-			if (c == '\n') {
-				lines++;
-				fork = (Matrix4f) transform.clone();
-				fork = MatrixMath.translate(fork, new Vertex3f(0, font.getLeading() * lines * scale, 0));
-			}
-			if (c == '\t') {
-				float curx = fork.get(0, 3);
-				fork = fork.set(0, 3, curx + (0.2f * scale));
-			}
+		if (text != null) {
+			for (char c : text.toCharArray()) {
+				Glyph g = getGlyphForChar(c);
+				if (g != null) {
+					program.setMatrix4f(matTransformName, fork);
+					fork = MatrixMath.translate(fork, new Vertex3f((g.getWidth() / 20f + font.getKerning()) * scale, 0, 0));
+					int base = c * 4;
+					charVBO.draw(base, 4);
+				}
+				if (c == '\n') {
+					lines++;
+					fork = (Matrix4f) transform.clone();
+					fork = MatrixMath.translate(fork, new Vertex3f(0, font.getLeading() * lines * scale, 0));
+				}
+				if (c == '\t') {
+					float curx = fork.get(0, 3);
+					fork = fork.set(0, 3, curx + (0.2f * scale));
+				}
 
+			}
 		}
 		charmap.unbind();
 		charVBO.unbind();

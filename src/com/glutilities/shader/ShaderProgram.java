@@ -186,6 +186,10 @@ public class ShaderProgram implements Reusable {
 		return matrix;
 	}
 
+	public void setBool(String name, boolean value) {
+		GL20.glUniform1i(glGetUniformLocation(name), value ? 1 : 0);
+	}
+	
 	/**
 	 * Sets an integer parameter for a uniform variable in a shader program. Can
 	 * also be used to set active texture index of a {@code sampler2D}.

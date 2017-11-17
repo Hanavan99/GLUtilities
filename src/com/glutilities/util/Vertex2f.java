@@ -29,6 +29,11 @@ public class Vertex2f {
 		x *= b.x;
 		y *= b.y;
 	}
+	
+	public void scale(float f) {
+		x *= f;
+		y *= f;
+	}
 
 	public void negate() {
 		x *= -1;

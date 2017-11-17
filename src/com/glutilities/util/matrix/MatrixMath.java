@@ -22,6 +22,14 @@ public class MatrixMath {
 	public static Matrix4f translate(Matrix4f src, Vertex3f translation) {
 		return src.set(0, 3, src.get(0, 3) + translation.getX()).set(1, 3, src.get(1, 3) + translation.getY()).set(2, 3, src.get(2, 3) + translation.getZ());
 	}
+	
+	public static Matrix4f setTranslation(Matrix4f src, Vertex3f position) {
+		return src.set(0, 3, position.getX()).set(1, 3, position.getY()).set(2, 3, position.getZ());
+	}
+	
+	public static Matrix4f setScale(Matrix4f src, Vertex3f scale) {
+		return src.set(0, 0, scale.getX()).set(1, 1, scale.getY()).set(2, 2, scale.getZ());
+	}
 
 	/**
 	 * Scales a matrix by a given vector.

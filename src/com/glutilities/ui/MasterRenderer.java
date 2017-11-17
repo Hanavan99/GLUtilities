@@ -43,6 +43,12 @@ public abstract class MasterRenderer {
 		
 	}
 	
-//	public void mouseClicked(int mouseID, )
+	public void mouseClicked(RenderContext context, int button, int action) {
+		
+	}
+	
+	public void mouseMoved(RenderContext context, int xpos, int ypos) {
+		
+	}
 
 }

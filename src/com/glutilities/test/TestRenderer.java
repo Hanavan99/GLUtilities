@@ -18,6 +18,7 @@ import com.glutilities.text.Font;
 import com.glutilities.text.FontManager;
 import com.glutilities.ui.MasterRenderer;
 import com.glutilities.ui.RenderContext;
+import com.glutilities.ui.gfx.TextBox;
 import com.glutilities.util.Vertex3f;
 import com.glutilities.util.Vertex4f;
 import com.glutilities.util.matrix.Matrix4f;
@@ -80,7 +81,7 @@ public class TestRenderer extends MasterRenderer {
 
 		// Set up some matrices
 		updateMatrices(context);
-
+		//box.setup(context);
 	}
 
 	@Override
@@ -92,6 +93,7 @@ public class TestRenderer extends MasterRenderer {
 		// fbo.bind();
 
 		program.enable();
+		program.setBool("useTexture", true);
 
 		program.setMatrix4f("projectionMatrix", orthoMat);
 		float scale = 0.02f;
@@ -119,7 +121,9 @@ public class TestRenderer extends MasterRenderer {
 		transform = MatrixMath.translate(transform, new Vertex3f(0, 0.1f, 0));
 		fm.get("test4").draw("Hello World!", transform, program, "transformMatrix", "glyphTex");
 		// render2D(window, "R: Recompile Shader");
-
+		transform = MatrixMath.setTranslation(transform, new Vertex3f(0, 0, 0));
+		program.setMatrix4f("transformMatrix", transform);
+		//box.render(context, program, null);
 		// DRAW ON FBO
 		/*
 		 * reflectionFBO.bind(); program.glUniform4f("plane", new Vertex4f(0, 0,
@@ -180,56 +184,6 @@ public class TestRenderer extends MasterRenderer {
 			}
 		}
 	}
-	//
-	// private void processInput() {
-	// if (action == GLFW.GLFW_PRESS) {
-	// switch (key) {
-	// case GLFW.GLFW_KEY_R:
-	// updateShaderCode(vertex, fragment);
-	// program.link();
-	// System.out.println("Shader Linked\n" + program.getError());
-	// break;
-	// case GLFW.GLFW_KEY_M:
-	// updateMatrices(context);
-	// System.out.println("Updated matrices");
-	// break;
-	// case GLFW.GLFW_KEY_Z:
-	// clip();
-	// System.out.println("Re-ran clipping algorithm");
-	// break;
-	// case GLFW.GLFW_KEY_T:
-	// text = loadFile(new File("res/shaders/samplevertex.vsh"));
-	// break;
-	// }
-	// }
-	// }
-
-	// private void clip() {
-	// Test.clipverts = EarClipper.clip(Test.verts, 200, 0.5f);
-	// clipvertcolors = new float[Test.verts.length];
-	// tricolors = new float[Test.clipverts.length];
-	// ArrayUtils.fill(clipvertcolors, new float[] { 0, 0, 1 });
-	// ArrayUtils.fillrandom(tricolors, 9);
-	// ArrayUtils.fillmask(Test.clipverts, new float[] { 0, 0, -0.3f }, 0b001);
-	// if (clipperVBO == null) {
-	// clipperVBO = new VBO(Test.verts, clipvertcolors, null, null, null,
-	// GL11.GL_POINTS);
-	// } else {
-	// clipperVBO.setVertices(Test.verts);
-	// clipperVBO.setColors(clipvertcolors);
-	// clipperVBO.delete();
-	// }
-	// clipperVBO.create();
-	// if (clipperVBO2 == null) {
-	// clipperVBO2 = new VBO(Test.clipverts, tricolors, null, null, null,
-	// GL11.GL_TRIANGLES);
-	// } else {
-	// clipperVBO2.setVertices(Test.clipverts);
-	// clipperVBO2.setColors(tricolors);
-	// clipperVBO2.delete();
-	// }
-	// clipperVBO2.create();
-	// }
 
 	private void clearViewport(int width, int height) {
 		GL11.glClear(GL11.GL_COLOR_BUFFER_BIT | GL11.GL_DEPTH_BUFFER_BIT);

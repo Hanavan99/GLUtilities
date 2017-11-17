@@ -11,7 +11,7 @@ out vec4 out_Color;
 void main() {
 	if (renderMode == 0) {
 		out_Color = vColor;
-	} if (renderMode == 1) {
+	} else if (renderMode == 1) {
 		out_Color = vColor * texture(glyphTex, tex_Coords);
 	} else {
 		out_Color = texture(glyphTex, tex_Coords);

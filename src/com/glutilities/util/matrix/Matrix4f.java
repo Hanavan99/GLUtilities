@@ -35,8 +35,14 @@ public class Matrix4f extends Matrixf<Matrix4f> {
 	@Override
 	public Matrix4f multiply(Matrix4f matrix) {
 		float[] newMatrix = new float[size * size];
-		for (int i = 0; i < newMatrix.length; i += 2) {
-			newMatrix[i] = this.matrix[i] * matrix.matrix[i * size] + this.matrix[i + 1] * matrix.matrix[(i + 1) * size] + this.matrix[i + 2] * matrix.matrix[(i + 2) * size] + this.matrix[i + 3] * matrix.matrix[(i + 3) * size];
+		for (int i = 0; i < newMatrix.length; i++) {
+			int row = i / size;
+			int col = i % size;
+			float sum = 0;
+			for (int j = 0; j < size; j++) {
+				sum += this.matrix[row * size + j] * matrix.matrix[j * size + col];
+			}
+			newMatrix[i] = sum;
 		}
 		return new Matrix4f(newMatrix);
 	}

@@ -3,6 +3,7 @@ package com.glutilities.text;
 import com.glutilities.buffer.VBO;
 import com.glutilities.shader.ShaderProgram;
 import com.glutilities.texture.Texture;
+import com.glutilities.util.Vertex2f;
 import com.glutilities.util.Vertex3f;
 import com.glutilities.util.matrix.Matrix4f;
 import com.glutilities.util.matrix.MatrixMath;
@@ -60,7 +61,7 @@ public class Charset {
 				if (c == '\n') {
 					lines++;
 					fork = (Matrix4f) transform.clone();
-					fork = MatrixMath.translate(fork, new Vertex3f(0, font.getLeading() * lines * scale, 0));
+					fork = MatrixMath.translate(fork, new Vertex3f(0,/* font.getLeading() * lines * scale*/30 * lines, 0));
 				}
 				if (c == '\t') {
 					float curx = fork.get(0, 3);
@@ -71,6 +72,32 @@ public class Charset {
 		}
 		charmap.unbind();
 		charVBO.unbind();
+	}
+	
+	public Vertex2f getEndingPosition(String text, Matrix4f transform) {
+		int lines = 0;
+		float scale = MatrixMath.getScale(transform).getX() * 20f;
+		Matrix4f fork = (Matrix4f) transform.clone();
+		fork = MatrixMath.translate(fork, new Vertex3f(0, font.getLeading() * lines, 0));
+		if (text != null) {
+			for (char c : text.toCharArray()) {
+				Glyph g = getGlyphForChar(c);
+				if (g != null) {
+					fork = MatrixMath.translate(fork, new Vertex3f((g.getWidth() / 20f + font.getKerning()) * scale, 0, 0));
+				}
+				if (c == '\n') {
+					lines++;
+					fork = (Matrix4f) transform.clone();
+					fork = MatrixMath.translate(fork, new Vertex3f(0, font.getLeading() * lines * scale, 0));
+				}
+				if (c == '\t') {
+					float curx = fork.get(0, 3);
+					fork = fork.set(0, 3, curx + (0.2f * scale));
+				}
+
+			}
+		}
+		return new Vertex2f(fork.get(0, 3), fork.get(1, 3));
 	}
 
 }

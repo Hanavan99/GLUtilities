@@ -8,8 +8,9 @@ import java.util.Scanner;
 import org.lwjgl.glfw.GLFW;
 import org.lwjgl.opengl.GL11;
 
-import com.glutilities.buffer.VBO;
+import com.glutilities.model.BufferedModel;
 import com.glutilities.model.BufferedModelManager;
+import com.glutilities.model.SplineModelBuilder;
 import com.glutilities.shader.FragmentShader;
 import com.glutilities.shader.ShaderObject;
 import com.glutilities.shader.ShaderProgram;
@@ -18,55 +19,32 @@ import com.glutilities.text.Font;
 import com.glutilities.text.FontManager;
 import com.glutilities.ui.MasterRenderer;
 import com.glutilities.ui.RenderContext;
-import com.glutilities.ui.gfx.TextBox;
-import com.glutilities.util.Vertex3f;
+import com.glutilities.util.GLMath;
 import com.glutilities.util.Vertex4f;
 import com.glutilities.util.matrix.Matrix4f;
 import com.glutilities.util.matrix.MatrixMath;
+import com.glutilities.util.matrix.TransformMatrix;
 
 public class TestRenderer extends MasterRenderer {
 
-	private VBO fbo1VBO;
-	private VBO fbo2VBO;
-	private Matrix4f orthoMat;
 	private Matrix4f perspMat;
 	private ShaderProgram program;
 	private BufferedModelManager mm;
 	private FontManager fm;
-	private VBO origin;
+	private TransformMatrix transMat = new TransformMatrix();
+	private BufferedModel spline;
 
 	@Override
 	public void init(RenderContext context) {
-		// float[] vertices = new float[] { -1, -1, 0, -1, 1, 0, 1, 1, 0, 1, -1,
-		// 0 };
-		float[] vertices = new float[] { -1, -1, 0, -1, -0.5f, 0, -0.5f, -0.5f, 0, -0.5f, -1, 0 };
-		float[] vertices2 = new float[] { -0.5f, -0.5f, 0, -0.5f, 0, 0, 0, 0, 0, 0, -0.5f, 0 };
-		float[] colors = new float[] { 0, 1, 1, 1, 0, 1, 1, 1, 0, 1, 1, 1 };
-		float[] texcoords = new float[] { 0, 0, 0, 0, 1, 0, 1, 1, 0, 1, 0, 0 };
-		float[] normals = new float[] { 0, 0, 1, 0, 0, 1, 0, 0, 1, 0, 0, 1 };
-		// float[] texcoords = new float[] { 0, 0, 0, 1, 1, 1, 1, 0 };
-
-		origin = new VBO(new float[] { -1, 0, 0, 1, 0, 0, 0, -1, 0, 0, 1, 0 }, colors, null, null, null, GL11.GL_LINES);
-		origin.create();
-
-		// clip();
-
-		fbo1VBO = new VBO(vertices, colors, normals, texcoords, null, GL11.GL_QUADS);
-		fbo1VBO.create();
-
-		fbo2VBO = new VBO(vertices2, colors, normals, texcoords, null, GL11.GL_QUADS);
-		fbo2VBO.create();
 
 		// Create a model manager to load models
 		mm = new BufferedModelManager();
-		mm.load(new File("res/models/car2.obj"), "test");
+		mm.load(new File("res/models/locomotive.obj"), "test");
+		spline = SplineModelBuilder.build(new float[] { 0, 0, 0, 10, 10, 10 }, 20, new float[] { 0, 0, 0, 1, 0, 0, 1, 0, 1, 0, 0, 1 });
 
 		// Create a font manager to load fonts
 		fm = new FontManager();
 		fm.load(new Font("Arial", Font.PLAIN, Vertex4f.WHITE, Vertex4f.BLUE, Vertex4f.BLACK, 0, 0, 0, 6), "test");
-		fm.load(new Font("Arial", Font.PLAIN, Vertex4f.WHITE, Vertex4f.BLACK, Vertex4f.BLACK, 0, 0, 0, 6), "test2");
-		fm.load(new Font("Arial", Font.ITALIC, Vertex4f.PURPLE, Vertex4f.BLACK, Vertex4f.BLACK, 0, 0, 0, 6), "test3");
-		fm.load(new Font("Courier New", Font.PLAIN, Vertex4f.YELLOW, Vertex4f.BLACK, Vertex4f.BLACK, 0, 2, 0, 6), "test4");
 
 		// Create 2 shader programs
 		VertexShader vertex = new VertexShader("testv", null);
@@ -81,79 +59,29 @@ public class TestRenderer extends MasterRenderer {
 
 		// Set up some matrices
 		updateMatrices(context);
-		//box.setup(context);
+		transMat.translate(0, 0, -30);
+
+		System.out.println(perspMat);
 	}
 
 	@Override
 	public void render(RenderContext context) {
 		clearViewport(context.getWidth(), context.getHeight());
 
-		// GL11.glEnable(GL30.GL_CLIP_DISTANCE0);
-
-		// fbo.bind();
+		// transMat.reset();
 
 		program.enable();
-		program.setBool("useTexture", true);
+		program.setInt("renderMode", 0);
+		program.setMatrix4f("projectionMatrix", perspMat);
+		program.setMatrix4f("transformMatrix", transMat.getMatrix());
+		// transMat.translate(0, 0, 0.1f);
+		transMat.setTranslation(0, 0, -20);
+		transMat.setRotation(GLMath.PI_2_3, GLMath.PI, 0);
+		transMat.rotate(0, 0, (float) GLFW.glfwGetTime() / 3f);
 
-		program.setMatrix4f("projectionMatrix", orthoMat);
-		float scale = 0.02f;
-		// float scale = 0.2f;
-		Matrix4f transform = Matrix4f.IDENTITY_MATRIX;
-		// transform = MatrixMath.rotate(transform, (float) GLFW.glfwGetTime() /
-		// 1f, 0b001);
-
-		transform = MatrixMath.scale(transform, new Vertex3f(scale, scale * 4f, scale));
-		// transform = MatrixMath.translate(transform, new Vertex3f(-0.7f, 0.8f,
-		// 0));
-		transform = MatrixMath.translate(transform, new Vertex3f(-0.9f, -0.9f, 0));
-
-		program.setMatrix4f("transformMatrix", transform);
-		origin.draw();
-		// clipperVBO.draw();
-		// clipperVBO2.draw();
-		// FontManager.drawString(fm.get("test"), "Test", transform, 10f,
-		// program, "transformMatrix");
-		fm.get("test").draw("Hello World!", transform, program, "transformMatrix", "glyphTex");
-		transform = MatrixMath.translate(transform, new Vertex3f(0, 0.1f, 0));
-		fm.get("test2").draw("Hello World!", transform, program, "transformMatrix", "glyphTex");
-		transform = MatrixMath.translate(transform, new Vertex3f(0, 0.1f, 0));
-		fm.get("test3").draw("Hello World!", transform, program, "transformMatrix", "glyphTex");
-		transform = MatrixMath.translate(transform, new Vertex3f(0, 0.1f, 0));
-		fm.get("test4").draw("Hello World!", transform, program, "transformMatrix", "glyphTex");
-		// render2D(window, "R: Recompile Shader");
-		transform = MatrixMath.setTranslation(transform, new Vertex3f(0, 0, 0));
-		program.setMatrix4f("transformMatrix", transform);
-		//box.render(context, program, null);
-		// DRAW ON FBO
-		/*
-		 * reflectionFBO.bind(); program.glUniform4f("plane", new Vertex4f(0, 0,
-		 * 1, 1)); clearViewport(window.getWindowWidth(),
-		 * window.getWindowHeight());
-		 * 
-		 * program.glUniformMatrix4f("projectionMatrix", true, perspMat);
-		 * render3D(window, true); reflectionFBO.unbind();
-		 * 
-		 * refractionFBO.bind(); program.glUniform4f("plane", new Vertex4f(0, 0,
-		 * -1, -1)); clearViewport(window.getWindowWidth(),
-		 * window.getWindowHeight());
-		 * 
-		 * program.glUniformMatrix4f("projectionMatrix", true, perspMat);
-		 * render3D(window, false); refractionFBO.unbind();
-		 */
-
-		// DRAW NORMALLY
-		// program.glUniform4f("plane", new Vertex4f(0, 0, 1, 100000));
-		// program.glUniformMatrix4f("projectionMatrix", true, perspMat);
-		// render3D(window, false);
+		mm.get("test").draw();
+		spline.draw();
 		program.disable();
-
-		/*
-		 * fprogram.enable(); fprogram.glUniform1i("fbo", 0);
-		 * fprogram.glUniform1i("depthfbo", 1);
-		 * reflectionFBO.renderToVBO(fbo1VBO);
-		 * refractionFBO.renderToVBO(fbo2VBO); // fbo.renderToQuad(-1, -1, -1,
-		 * 1, 1, 1, 1, -1); fprogram.disable();
-		 */
 	}
 
 	@Override
@@ -163,8 +91,6 @@ public class TestRenderer extends MasterRenderer {
 
 	@Override
 	public void exit(RenderContext context) {
-		fbo1VBO.delete();
-		fbo2VBO.delete();
 		program.delete();
 	}
 
@@ -191,8 +117,10 @@ public class TestRenderer extends MasterRenderer {
 	}
 
 	private void updateMatrices(RenderContext context) {
-		orthoMat = MatrixMath.createOrthographicMatrix(-1, 1, 1, -1, -1, 1);
-		perspMat = MatrixMath.createPerspectiveMatrix(80f, context.getAspect(), 0.1f, 100f);
+		perspMat = MatrixMath.createPerspectiveMatrix(90f, context.getAspect(), 1f, 300f);
+		// perspMat = MatrixMath.createOrthographicMatrix(-1, 1, 1, -1, -10,
+		// 10);
+		System.out.println(perspMat);
 	}
 
 	private void updateShaderCode(ShaderObject vertex, ShaderObject fragment) {

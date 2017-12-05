@@ -6,6 +6,9 @@ public class Vertex4f extends Vertex3f {
 
 	public static final Vertex4f TRANSPARENT = new Vertex4f(0, 0, 0, 0);
 	public static final Vertex4f WHITE = new Vertex4f(1, 1, 1, 1);
+	public static final Vertex4f LIGHTGRAY = new Vertex4f(0.75f, 0.75f, 0.75f, 1);
+	public static final Vertex4f GRAY = new Vertex4f(0.5f, 0.5f, 0.5f, 1);
+	public static final Vertex4f DARKGRAY = new Vertex4f(0.25f, 0.25f, 0.25f, 1);
 	public static final Vertex4f BLACK = new Vertex4f(0, 0, 0, 1);
 	public static final Vertex4f RED = new Vertex4f(1, 0, 0, 1);
 	public static final Vertex4f GREEN = new Vertex4f(0, 1, 0, 1);

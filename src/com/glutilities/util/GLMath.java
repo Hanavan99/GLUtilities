@@ -4,14 +4,26 @@ import org.lwjgl.opengl.GL11;
 
 public class GLMath {
 
+	public static final float PI = 3.14159265f;
+	public static final float PI_1_6 = PI / 6f;
+	public static final float PI_1_4 = PI / 4f;
+	public static final float PI_1_3 = PI / 3f;
+	public static final float PI_1_2 = PI / 2f;
+	public static final float PI_2_3 = 2f * PI / 3f;
+	public static final float PI_3_4 = 3f * PI / 4f;
+	public static final float PI_5_6 = 5f * PI / 6f;
+	public static final float PI_5_4 = 5f * PI / 4f;
+	public static final float PI_3_2 = 3f * PI / 2f;
+	public static final float PI_7_4 = 7f * PI / 4f;
+	public static final float PI_2 = PI * 2f;
+
 	/**
-	 * Creates a {@code float[]} array that holds pairs of x and y coordinates for a
-	 * beziér curve.
+	 * Creates a {@code float[]} array that holds pairs of x and y coordinates
+	 * for a beziér curve.
 	 * 
-	 * @param points
-	 *            The points in the curve
-	 * @param samples
-	 *            The number of pairs of x and y coordinates sampled from the curve
+	 * @param points The points in the curve
+	 * @param samples The number of pairs of x and y coordinates sampled from
+	 *            the curve
 	 * @return The sampled coordinates
 	 */
 	public static double[] bezier(double[] points, int samples) {
@@ -23,10 +35,34 @@ public class GLMath {
 			double t = (double) j / sampleArray.length;
 			for (int i = 0; i < points.length; i += 2) {
 				int pointIndex = i / 2;
-				x += pascal[pointIndex] * Math.pow(1 - t, points.length / 2 - pointIndex - 1) * Math.pow(t, pointIndex)
-						* points[i];
-				y += pascal[pointIndex] * Math.pow(1 - t, points.length / 2 - pointIndex - 1) * Math.pow(t, pointIndex)
-						* points[i + 1];
+				x += pascal[pointIndex] * Math.pow(1 - t, points.length / 2 - pointIndex - 1) * Math.pow(t, pointIndex) * points[i];
+				y += pascal[pointIndex] * Math.pow(1 - t, points.length / 2 - pointIndex - 1) * Math.pow(t, pointIndex) * points[i + 1];
+
+			}
+			sampleArray[j] = x;
+			sampleArray[j + 1] = y;
+		}
+		return sampleArray;
+	}
+
+	/**
+	 * float version of bezier().
+	 * 
+	 * @param points
+	 * @param samples
+	 * @return
+	 */
+	public static float[] bezier(float[] points, int samples) {
+		float[] sampleArray = new float[samples * 2];
+		int[] pascal = pascal(points.length / 2 - 1);
+		for (int j = 0; j < sampleArray.length; j += 2) {
+			float x = 0;
+			float y = 0;
+			float t = (float) j / sampleArray.length;
+			for (int i = 0; i < points.length; i += 2) {
+				int pointIndex = i / 2;
+				x += pascal[pointIndex] * Math.pow(1 - t, points.length / 2 - pointIndex - 1) * Math.pow(t, pointIndex) * points[i];
+				y += pascal[pointIndex] * Math.pow(1 - t, points.length / 2 - pointIndex - 1) * Math.pow(t, pointIndex) * points[i + 1];
 
 			}
 			sampleArray[j] = x;
@@ -54,8 +90,7 @@ public class GLMath {
 	/**
 	 * Generates the numbers of level n of Pascal's Triangle.
 	 * 
-	 * @param level
-	 *            The level to create, level 0 being { 1 }, 1 = { 1, 1 }, etc.
+	 * @param level The level to create, level 0 being { 1 }, 1 = { 1, 1 }, etc.
 	 * @return The numbers
 	 */
 	public static int[] pascal(int level) {
@@ -89,7 +124,5 @@ public class GLMath {
 		double fw = fh * aspect;
 		GL11.glFrustum(-fw, fw, -fh, fh, znear, zfar);
 	}
-
-	
 
 }

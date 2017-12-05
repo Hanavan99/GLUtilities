@@ -43,6 +43,10 @@ public abstract class UIElement {
 	public void keyPressed(int key, int action) {
 		
 	}
+	
+	public void textTyped(char c) {
+		
+	}
 
 	public Vertex3f getPosition() {
 		return position;

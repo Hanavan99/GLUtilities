@@ -81,18 +81,24 @@ public class BufferedModelLoader extends ResourceLoader<BufferedModel, String, F
 				int vi = drawi.get(i) * vertsPerShape;
 				int ti = drawi.get(i + 1) * 1;
 				int ni = drawi.get(i + 2) * vertsPerShape;
-				vertices[i] = verts.get(vi);
-				vertices[i + 1] = verts.get(vi + 1);
-				vertices[i + 2] = verts.get(vi + 2);
+				if (vi != -1) {
+					vertices[i] = verts.get(vi);
+					vertices[i + 1] = verts.get(vi + 1);
+					vertices[i + 2] = verts.get(vi + 2);
+				}
 				colors[i] = 1;
 				colors[i + 1] = 1;
 				colors[i + 2] = 1;
-				normals[i] = norms.get(ni);
-				normals[i + 1] = norms.get(ni + 1);
-				normals[i + 2] = norms.get(ni + 2);
-				texcoords[i] = texcs.get(ti);
-				texcoords[i + 1] = texcs.get(ti + 1);
-				texcoords[i + 2] = texcs.get(ti + 2);
+				if (ni != -1) {
+					normals[i] = norms.get(ni);
+					normals[i + 1] = norms.get(ni + 1);
+					normals[i + 2] = norms.get(ni + 2);
+				}
+				if (ti != -1) {
+					texcoords[i] = texcs.get(ti);
+					texcoords[i + 1] = texcs.get(ti + 1);
+					texcoords[i + 2] = texcs.get(ti + 2);
+				}
 			}
 			return new BufferedModel(key, vertices, colors, normals, texcoords, null, GL11.GL_TRIANGLES);
 		} catch (IOException e) {

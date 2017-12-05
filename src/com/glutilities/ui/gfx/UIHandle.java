@@ -12,8 +12,11 @@ import com.glutilities.shader.ShaderProgram;
 import com.glutilities.text.Font;
 import com.glutilities.text.FontManager;
 import com.glutilities.texture.TextureManager;
+import com.glutilities.ui.RenderContext;
 import com.glutilities.util.ArrayUtils;
+import com.glutilities.util.Vertex2f;
 import com.glutilities.util.Vertex3f;
+import com.glutilities.util.Vertex4f;
 import com.glutilities.util.matrix.Matrix4f;
 import com.glutilities.util.matrix.MatrixMath;
 import com.glutilities.util.matrix.MatrixStack;
@@ -24,10 +27,11 @@ public class UIHandle {
 	public static final int MODE_TEXTURE_AND_COLOR = 0x1;
 	public static final int MODE_TEXTURE_ONLY = 0x2;
 
-	private static final String vertexCode = null;
-	private static final String fragmentCode = null;
+	//private static final String vertexCode = null;
+	//private static final String fragmentCode = null;
 
 	private ShaderProgram program;
+	private RenderContext context;
 	private FontManager fontManager;
 	private BufferedModelManager modelManager;
 	private TextureManager texManager;
@@ -35,8 +39,9 @@ public class UIHandle {
 	private MatrixStack transformStack;
 	private List<VBO> vbos = new ArrayList<VBO>();
 
-	public UIHandle(ShaderProgram program) {
+	public UIHandle(ShaderProgram program, RenderContext context) {
 		this.program = program;
+		this.context = context;
 		this.fontManager = new FontManager();
 		this.modelManager = new BufferedModelManager();
 		this.texManager = new TextureManager();
@@ -45,11 +50,15 @@ public class UIHandle {
 		
 		transformStack.set(MatrixMath.setScale(Matrix4f.IDENTITY_MATRIX, new Vertex3f(0.25f, 0.25f, 1)));
 		transformStack.push();
-		loadFont(new Font("Arial", Font.PLAIN), "default");
+		loadFont(new Font("Arial", Font.PLAIN, Vertex4f.BLACK), "default");
 	}
 	
 	public void updateProjectionMatrix() {
 		program.setMatrix4f("projectionMatrix", projectionMatrix);
+	}
+	
+	public void setProjectionMatrix(Matrix4f m) {
+		projectionMatrix = m;
 	}
 	
 	public void setRenderMode(int mode) {
@@ -58,9 +67,13 @@ public class UIHandle {
 	
 	public void drawText(String fontName, String text) {
 		transformStack.push();
-		transformStack.setScale(new Vertex3f(1 / 32f, 1 / 32f * 4f, 1));
+		transformStack.setScale(new Vertex3f(10f, 30, 1));
 		fontManager.get(fontName).draw(text, transformStack.get(), program, "transformMatrix", "glyphTex");
 		transformStack.pop();
+	}
+	
+	public Vertex2f getTextOffset(String fontName, String text) {
+		return fontManager.get(fontName).getEndingPosition(text, transformStack.get());
 	}
 	
 	public void setRenderPos(Vertex3f pos) {
@@ -102,6 +115,16 @@ public class UIHandle {
 		float[] colors = new float[12];
 		ArrayUtils.fill(colors, new float[] { color.getR(), color.getG(), color.getB() });
 		VBO vbo = new VBO(vertices, colors, null, GL11.GL_QUADS);
+		vbo.create();
+		vbos.add(vbo);
+		return vbo;
+	}
+	
+	public VBO createLine(float x1, float y1, float x2, float y2, Vertex3f color) {
+		float[] vertices = new float[] { x1, y1, 0, x2, y2, 0 };
+		float[] colors = new float[6];
+		ArrayUtils.fill(colors, new float[] { color.getR(), color.getG(), color.getB() });
+		VBO vbo = new VBO(vertices, colors, null, GL11.GL_LINES);
 		vbo.create();
 		vbos.add(vbo);
 		return vbo;

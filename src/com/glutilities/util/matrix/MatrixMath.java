@@ -11,7 +11,7 @@ import com.glutilities.util.Vertex4f;
  *
  */
 public class MatrixMath {
-
+	
 	/**
 	 * Translates a matrix by a given vector.
 	 * 
@@ -22,11 +22,11 @@ public class MatrixMath {
 	public static Matrix4f translate(Matrix4f src, Vertex3f translation) {
 		return src.set(0, 3, src.get(0, 3) + translation.getX()).set(1, 3, src.get(1, 3) + translation.getY()).set(2, 3, src.get(2, 3) + translation.getZ());
 	}
-	
+
 	public static Matrix4f setTranslation(Matrix4f src, Vertex3f position) {
 		return src.set(0, 3, position.getX()).set(1, 3, position.getY()).set(2, 3, position.getZ());
 	}
-	
+
 	public static Matrix4f setScale(Matrix4f src, Vertex3f scale) {
 		return src.set(0, 0, scale.getX()).set(1, 1, scale.getY()).set(2, 2, scale.getZ());
 	}
@@ -41,7 +41,7 @@ public class MatrixMath {
 	public static Matrix4f scale(Matrix4f src, Vertex3f scale) {
 		return src.set(0, 0, src.get(0, 0) * scale.getX()).set(1, 1, src.get(1, 1) * scale.getY()).set(2, 2, src.get(2, 2) * scale.getZ());
 	}
-	
+
 	public static Vertex3f getScale(Matrix4f src) {
 		return new Vertex3f(src.get(0, 0), src.get(1, 1), src.get(2, 2));
 	}
@@ -114,10 +114,10 @@ public class MatrixMath {
 		float[] matrix = new float[16];
 		matrix[0] = 2f / (r - l);
 		matrix[5] = 2f / (t - b);
-		matrix[10] = -2f / (f - n);
-		matrix[12] = -(r + l) / (r - l);
-		matrix[13] = -(t + b) / (t - b);
-		matrix[14] = -(f + n) / (f - n);
+		matrix[10] = 2f / (f - n);
+		matrix[3] = -(r + l) / (r - l);
+		matrix[7] = -(t + b) / (t - b);
+		matrix[11] = -(f + n) / (f - n);
 		matrix[15] = 1;
 		return new Matrix4f(matrix);
 	}

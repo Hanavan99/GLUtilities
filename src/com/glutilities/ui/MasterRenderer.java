@@ -50,5 +50,9 @@ public abstract class MasterRenderer {
 	public void mouseMoved(RenderContext context, int xpos, int ypos) {
 		
 	}
+	
+	public void textTyped(RenderContext context, int codepoint) {
+		
+	}
 
 }

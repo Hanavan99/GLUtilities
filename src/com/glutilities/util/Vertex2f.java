@@ -8,7 +8,7 @@ public class Vertex2f {
 	public Vertex2f(float f) {
 		x = y = f;
 	}
-	
+
 	public Vertex2f(float x, float y) {
 		this.x = x;
 		this.y = y;
@@ -29,7 +29,7 @@ public class Vertex2f {
 		x *= b.x;
 		y *= b.y;
 	}
-	
+
 	public void scale(float f) {
 		x *= f;
 		y *= f;
@@ -52,11 +52,14 @@ public class Vertex2f {
 	}
 
 	/**
-	 * @param x
-	 *            the x to set
+	 * @param x the x to set
 	 */
 	public void setX(float x) {
 		this.x = x;
+	}
+
+	public void addX(float dx) {
+		x += dx;
 	}
 
 	/**
@@ -67,17 +70,20 @@ public class Vertex2f {
 	}
 
 	/**
-	 * @param y
-	 *            the y to set
+	 * @param y the y to set
 	 */
 	public void setY(float y) {
 		this.y = y;
 	}
 
+	public void addY(float dy) {
+		y += dy;
+	}
+
 	public Vertex3f toVertex3() {
 		return new Vertex3f(x, y, 0);
 	}
-	
+
 	@Override
 	public String toString() {
 		return String.format("x=%.2f y=%.2f", x, y);

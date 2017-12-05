@@ -28,5 +28,5 @@ void main() {
 	
 	tex_Coords = texcoords;
 	vColor = vec4(color, 1.0);
-	reflection = dot(vec3(1, 1, 1), normal);
+	reflection = dot(normalize(vec3(1, 1, 1)), (mat3x4(transformMatrix) * normal).xyz);
 }

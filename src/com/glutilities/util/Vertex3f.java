@@ -64,6 +64,10 @@ public class Vertex3f extends Vertex2f {
 	public void setZ(float z) {
 		this.z = z;
 	}
+	
+	public void addZ(float dz) {
+		z += dz;
+	}
 
 	public float getR() {
 		return getX();

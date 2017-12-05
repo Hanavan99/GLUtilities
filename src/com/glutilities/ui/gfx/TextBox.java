@@ -1,14 +1,12 @@
 package com.glutilities.ui.gfx;
 
-import org.lwjgl.glfw.GLFW;
-
 import com.glutilities.buffer.VBO;
 import com.glutilities.util.Vertex3f;
 import com.glutilities.util.Vertex4f;
 
-public class TextBox extends UIElement {
+public class TextBox extends TextElement {
 
-	private String text;
+	//private String text = "";
 	private VBO border;
 	private VBO back;
 
@@ -18,8 +16,9 @@ public class TextBox extends UIElement {
 	
 	@Override
 	public void setup(UIHandle handle) {
-		border = handle.createBorder(0, 0, 1, 1, Vertex4f.BLUE);
-		back = handle.createBox(0, 0, 1, 1, Vertex4f.WHITE);
+		super.setup(handle);
+		border = handle.createBorder(0, 0, 1, 1, Vertex4f.DARKGRAY);
+		back = handle.createBox(0, 0, 1, 1, Vertex4f.LIGHTGRAY);
 	}
 
 	@Override
@@ -28,15 +27,18 @@ public class TextBox extends UIElement {
 		//handle.setRenderScale(new Vertex3f(1 / 32f, 1 / 32f * 4, 1));
 		back.draw();
 		border.draw();
-		handle.setRenderMode(UIHandle.MODE_TEXTURE_ONLY);
-		handle.drawText("default", text);
+		super.render(handle);
 	}
 	
-	@Override
-	public void keyPressed(int key, int action) {
-		if (action == GLFW.GLFW_PRESS && key == GLFW.GLFW_KEY_A) {
-			text += "a";
-		}
-	}
+//	@Override
+//	public void keyPressed(int key, int action) {
+//		if ((action == GLFW.GLFW_PRESS || action == GLFW.GLFW_REPEAT) && key == GLFW.GLFW_KEY_BACKSPACE && text.length() > 0) {
+//			text = text.substring(0, text.length() - 1);
+//		}
+//	}
+//	@Override
+//	public void textTyped(char c) {
+//		text += c;
+//	}
 
 }

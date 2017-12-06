@@ -1,38 +1,46 @@
 package com.glutilities.model;
 
-import org.lwjgl.opengl.GL11;
+import com.glutilities.shader.ShaderProgram;
+import com.glutilities.util.Vertex4f;
 
 public class ModelMaterial {
 
-	public static final float[] DEFAULT_SPECULAR = new float[] { 1, 1, 1, 1 };
-	// public static final float[] DEFAULT_DIFFUSE = new float[] {
-	public static final float[] DEFAULT_SHININESS = new float[] { 50, 0, 0, 0 };
+	private final String name;
+	private final Vertex4f ambient; // (Ka) base color of model
+	private final Vertex4f diffuse; // (Kd) color when lit
+	private final Vertex4f specular; // (Ks) color of light
+	private final Vertex4f transmissionFilter; // (Tf) filters light passing
+												// through it
+	private final float specularExponent; // (Ns) relates to specular
+	private final float dissolve; // (d) essentially transparency
+	private final int illumModel; // (illum) which lighting mode to use
+	private final float indexOfRefraction; // (Ni)
 
-	private final float[] ambientColor;
-	private final float[] diffuseReflection;
-	private final float[] specularReflection;
-	private final float[] shininess;
-
-	public ModelMaterial(float[] ambientColor, float[] diffuseReflection, float[] specularReflection, float shininess) {
-		this.ambientColor = ambientColor;
-		this.diffuseReflection = diffuseReflection;
-		this.specularReflection = specularReflection;
-		this.shininess = new float[] { shininess, 0, 0, 0 };
+	public ModelMaterial(String name, Vertex4f ambient, Vertex4f diffuse, Vertex4f specular, Vertex4f transmissionFilter, float specularExponent, float dissolve, int illumModel, float indexOfRefraction) {
+		this.name = name;
+		this.ambient = ambient;
+		this.diffuse = diffuse;
+		this.specular = specular;
+		this.transmissionFilter = transmissionFilter;
+		this.specularExponent = specularExponent;
+		this.dissolve = dissolve;
+		this.illumModel = illumModel;
+		this.indexOfRefraction = indexOfRefraction;
 	}
 
-	public void setupLighting() {
-		GL11.glColor4fv(ambientColor);
-		if (specularReflection != null) {
-			GL11.glMaterialfv(GL11.GL_FRONT, GL11.GL_SPECULAR, specularReflection);
-		} else {
-			GL11.glMaterialfv(GL11.GL_FRONT, GL11.GL_SPECULAR, DEFAULT_SPECULAR);
-		}
-		if (shininess != null) {
-			GL11.glMaterialfv(GL11.GL_FRONT, GL11.GL_SHININESS, shininess);
-		} else {
-			GL11.glMaterialfv(GL11.GL_FRONT, GL11.GL_SHININESS, DEFAULT_SHININESS);
-		}
-		GL11.glColorMaterial(GL11.GL_FRONT, GL11.GL_AMBIENT_AND_DIFFUSE);
+	public void load(ShaderProgram program) {
+		program.setVertex4f("Ka", ambient);
+		program.setVertex4f("Kd", diffuse);
+		program.setVertex4f("Ks", specular);
+		program.setVertex4f("Tf", transmissionFilter);
+		program.setFloat("Ns", specularExponent);
+		program.setFloat("d", dissolve);
+		program.setInt("illum", illumModel);
+		program.setFloat("Ni", indexOfRefraction);
+	}
+
+	public String getName() {
+		return name;
 	}
 
 }

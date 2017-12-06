@@ -9,8 +9,10 @@ import java.io.IOException;
 import org.lwjgl.opengl.GL11;
 
 import com.glutilities.buffer.VBO;
+import com.glutilities.model.AttributeArray;
 import com.glutilities.resource.ResourceLoader;
 import com.glutilities.texture.Texture;
+import com.glutilities.util.ArrayUtils;
 import com.glutilities.util.Rectangle;
 import com.glutilities.util.Vertex2f;
 import com.glutilities.util.Vertex4f;
@@ -34,7 +36,7 @@ public class FontLoader extends ResourceLoader<Charset, String, com.glutilities.
 		Vertex4f backColor = src.getBackColor();
 		g.setColor(new Color(backColor.getR(), backColor.getG(), backColor.getB(), backColor.getA()));
 		g.fillRect(0, 0, glyphSize * GLYPHS, glyphSize * GLYPHS * 2);
-		//FontMetrics metrics = g.getFontMetrics();
+		// FontMetrics metrics = g.getFontMetrics();
 		g.setFont(internalFont);
 		Vertex4f textColor = src.getTextColor();
 		g.setColor(new Color(textColor.getR(), textColor.getG(), textColor.getB(), textColor.getA()));
@@ -65,7 +67,9 @@ public class FontLoader extends ResourceLoader<Charset, String, com.glutilities.
 			System.arraycopy(atexCoords, 0, vboTexCoords, (int) c * 12, atexCoords.length);
 			glyphs[(int) c] = new Glyph(c, texCoords, width);
 		}
-		VBO vbo = new VBO(vboVerts, null, null, vboTexCoords, null, GL11.GL_QUADS);
+		AttributeArray verts = new AttributeArray(0, ArrayUtils.toObjectArray(vboVerts), 3);
+		AttributeArray texcoords = new AttributeArray(0, ArrayUtils.toObjectArray(vboTexCoords), 3);
+		VBO vbo = new VBO(new AttributeArray[] { verts, texcoords }, 4, GL11.GL_QUADS);
 		vbo.create();
 		Texture charmap = build(image, "a");
 		// ImageIO.write(image, "PNG", new File("res/test.png"));

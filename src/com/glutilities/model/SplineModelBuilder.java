@@ -2,19 +2,19 @@ package com.glutilities.model;
 
 import org.lwjgl.opengl.GL11;
 
+import com.glutilities.buffer.VBO;
 import com.glutilities.util.GLMath;
-import com.glutilities.util.Vertex3f;
 import com.glutilities.util.Vertex4f;
 import com.glutilities.util.matrix.MatrixMath;
 import com.glutilities.util.matrix.TransformMatrix;
 
 public class SplineModelBuilder {
 
-	public static BufferedModel build(float[] points, int samples, float[] verts) {
-		float[] finalVerts = new float[verts.length * samples];
+	public static Model build(float[] points, int samples, float[] verts) {
+		Float[] finalVerts = new Float[verts.length * samples];
 		int offset = 0;
 		float[] pos = GLMath.bezier(points, samples);
-		TransformMatrix transMat = new TransformMatrix();
+		TransformMatrix transMat = new TransformMatrix(null, null);
 		for (int i = 0; i < pos.length; i += 2) {
 			if (i < pos.length - 3) {
 				float theta = (float) Math.atan2(pos[i + 3] - pos[i + 1], pos[i + 2] - pos[i]);
@@ -31,7 +31,10 @@ public class SplineModelBuilder {
 			}
 			offset += verts.length;
 		}
-		return new BufferedModel("asdf", finalVerts, null, null, null, null, GL11.GL_LINES);
+		AttributeArray vertices = new AttributeArray(0, finalVerts, 2);
+		VBO vbo = new VBO(new AttributeArray[] { vertices }, finalVerts.length / 3, GL11.GL_LINES);
+		ModelGroup spline = new ModelGroup("spline", null, vbo);
+		return new Model("spline", new ModelGroup[] { spline });
 	}
 
 }

@@ -9,24 +9,18 @@ in layout(location=2) vec3 normal;
 in layout(location=3) vec2 texcoords;
 
 out vec2 tex_Coords;
-out vec4 vColor;
 out float reflection;
+out float specularReflection;
 
 uniform vec4 plane = vec4(0, 0, -1, 1);
 
+vec3 light = normalize(vec3(0, 0, 1));
+
 void main() {
-	
-	
-	//gl_Position = vec4(position.xy, 0.0, 1.0);
 	vec4 worldPos = vec4(position, 1.0);
-	
-	//gl_ClipDistance[0] = dot(worldPos, plane);
-	
-	gl_Position = projectionMatrix * transformMatrix * worldPos;
-	
-	
-	
 	tex_Coords = texcoords;
-	vColor = vec4(color, 1.0);
-	reflection = dot(normalize(vec3(1, 1, 1)), (mat3x4(transformMatrix) * normal).xyz);
+	reflection = dot(light, normal);
+	vec3 eye = (transformMatrix * vec4(0)).xyz;
+	specularReflection = dot(eye, reflect(-light, normal));
+	gl_Position = projectionMatrix * transformMatrix * worldPos;
 }

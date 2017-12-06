@@ -8,8 +8,10 @@ import java.util.Scanner;
 import org.lwjgl.glfw.GLFW;
 import org.lwjgl.opengl.GL11;
 
-import com.glutilities.model.BufferedModel;
-import com.glutilities.model.BufferedModelManager;
+import com.glutilities.buffer.VBO;
+import com.glutilities.model.AttributeArray;
+import com.glutilities.model.Model;
+import com.glutilities.model.ModelManager;
 import com.glutilities.model.SplineModelBuilder;
 import com.glutilities.shader.FragmentShader;
 import com.glutilities.shader.ShaderObject;
@@ -29,18 +31,20 @@ public class TestRenderer extends MasterRenderer {
 
 	private Matrix4f perspMat;
 	private ShaderProgram program;
-	private BufferedModelManager mm;
+	private ModelManager mm;
 	private FontManager fm;
-	private TransformMatrix transMat = new TransformMatrix();
-	private BufferedModel spline;
+	private TransformMatrix transMat;
+	private Model spline;
+	private VBO test;
 
 	@Override
 	public void init(RenderContext context) {
 
 		// Create a model manager to load models
-		mm = new BufferedModelManager();
-		mm.load(new File("res/models/locomotive.obj"), "test");
-		spline = SplineModelBuilder.build(new float[] { 0, 0, 0, 10, 10, 10 }, 20, new float[] { 0, 0, 0, 1, 0, 0, 1, 0, 1, 0, 0, 1 });
+		mm = new ModelManager();
+		mm.load(new File("res/models/cube.obj"), "test");
+		mm.load(new File("res/models/locomotive.obj"), "train");
+		spline = SplineModelBuilder.build(new float[] { -30, 0, 30, 0 }, 20, new float[] { 0, 0, 0, 1, 0, 0, 1, 0, 1, 0, 0, 1 });
 
 		// Create a font manager to load fonts
 		fm = new FontManager();
@@ -59,28 +63,34 @@ public class TestRenderer extends MasterRenderer {
 
 		// Set up some matrices
 		updateMatrices(context);
-		transMat.translate(0, 0, -30);
+		transMat = new TransformMatrix(program, "transformMatrix");
 
-		System.out.println(perspMat);
+		// testing new VBO
+		AttributeArray verts = new AttributeArray(0, new Float[] { 0f, 0f, 0f, 0f, 1f, 0f, 1f, 1f, 0f, 1f, 0f, 0f }, 3);
+		AttributeArray colors = new AttributeArray(1, new Float[] { 1f, 1f, 1f, 1f, 1f, 1f, 1f, 1f, 1f, 1f, 1f, 1f }, 3);
+		test = new VBO(new AttributeArray[] { verts, colors }, 4, GL11.GL_TRIANGLES);
+		test.create();
+
 	}
 
 	@Override
 	public void render(RenderContext context) {
 		clearViewport(context.getWidth(), context.getHeight());
 
-		// transMat.reset();
+		transMat.reset();
 
 		program.enable();
 		program.setInt("renderMode", 0);
-		program.setMatrix4f("projectionMatrix", perspMat);
-		program.setMatrix4f("transformMatrix", transMat.getMatrix());
-		// transMat.translate(0, 0, 0.1f);
-		transMat.setTranslation(0, 0, -20);
-		transMat.setRotation(GLMath.PI_2_3, GLMath.PI, 0);
-		transMat.rotate(0, 0, (float) GLFW.glfwGetTime() / 3f);
 
-		mm.get("test").draw();
-		spline.draw();
+		program.setMatrix4f("projectionMatrix", perspMat);
+		transMat.setTranslation(0, 0, -15);
+
+		transMat.setScale(1, 1, 1);
+		transMat.setRotation(GLMath.PI_2_3, GLMath.PI, 0);
+		transMat.rotate(0, 0, (float) GLFW.glfwGetTime() / 4f);
+
+		mm.get("train").draw(program);
+
 		program.disable();
 	}
 
@@ -118,8 +128,6 @@ public class TestRenderer extends MasterRenderer {
 
 	private void updateMatrices(RenderContext context) {
 		perspMat = MatrixMath.createPerspectiveMatrix(90f, context.getAspect(), 1f, 300f);
-		// perspMat = MatrixMath.createOrthographicMatrix(-1, 1, 1, -1, -10,
-		// 10);
 		System.out.println(perspMat);
 	}
 

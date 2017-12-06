@@ -3,7 +3,6 @@ package com.glutilities.test;
 import org.lwjgl.glfw.GLFW;
 
 import com.glutilities.ui.GLWindow;
-import com.glutilities.util.matrix.Matrix4f;
 
 public class Test {
 
@@ -13,11 +12,8 @@ public class Test {
 
 		// Initialize GLFW
 		GLFW.glfwInit();
+		GLFW.glfwWindowHint(GLFW.GLFW_SAMPLES, 8);
 
-		Matrix4f a = new Matrix4f(new float[] { 1, 2, -3, 1, 0, 1, 20, 5, 2, 13, 34, 10, 11, 14, 1, 81 });
-		Matrix4f b = new Matrix4f(new float[] { 2, 5, 51, 11, 6, 7, 6, 12, 1, 8, -8, 9, 6, 7, 2, 13 });
-		System.out.println(a.multiply(b));
-		//System.exit(0);
 		// Create the GLWindow
 		window = new GLWindow(800, 600, "Testing", 0);
 		window.setVsyncEnabled(false);

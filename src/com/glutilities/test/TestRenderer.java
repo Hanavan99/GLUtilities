@@ -8,6 +8,7 @@ import java.util.Scanner;
 import org.lwjgl.glfw.GLFW;
 import org.lwjgl.opengl.GL11;
 
+import com.glutilities.buffer.FBO;
 import com.glutilities.buffer.VBO;
 import com.glutilities.model.AttributeArray;
 import com.glutilities.model.Model;
@@ -31,11 +32,14 @@ public class TestRenderer extends MasterRenderer {
 
 	private Matrix4f perspMat;
 	private ShaderProgram program;
+	private ShaderProgram fboProgram;
 	private ModelManager mm;
 	private FontManager fm;
 	private TransformMatrix transMat;
 	private Model spline;
 	private VBO test;
+	private FBO fbo;
+	private VBO fbovbo;
 
 	@Override
 	public void init(RenderContext context) {
@@ -44,7 +48,8 @@ public class TestRenderer extends MasterRenderer {
 		mm = new ModelManager();
 		mm.load(new File("res/models/cube.obj"), "test");
 		mm.load(new File("res/models/locomotive.obj"), "train");
-		spline = SplineModelBuilder.build(new float[] { -30, 0, 30, 0 }, 20, new float[] { 0, 0, 0, 1, 0, 0, 1, 0, 1, 0, 0, 1 });
+		spline = SplineModelBuilder.build(new float[] { -30, 0, 30, 0 }, 20,
+				new float[] { 0, 0, 0, 1, 0, 0, 1, 0, 1, 0, 0, 1 });
 
 		// Create a font manager to load fonts
 		fm = new FontManager();
@@ -59,7 +64,16 @@ public class TestRenderer extends MasterRenderer {
 		program = new ShaderProgram(vertex, fragment);
 		program.create();
 		program.link();
-		System.out.println(program.isLinked() + ": " + program.getError());
+		
+		VertexShader vertex2 = new VertexShader("testv", null);
+		FragmentShader fragment2 = new FragmentShader("testf", null);
+		updateShaderCode(vertex2, fragment2);
+		vertex2.create();
+		fragment2.create();
+		fboProgram = new ShaderProgram(vertex2, fragment2);
+		fboProgram.create();
+		fboProgram.link();
+		System.out.println(fboProgram.isLinked() + ": " + fboProgram.getError());
 
 		// Set up some matrices
 		updateMatrices(context);
@@ -67,10 +81,21 @@ public class TestRenderer extends MasterRenderer {
 
 		// testing new VBO
 		AttributeArray verts = new AttributeArray(0, new Float[] { 0f, 0f, 0f, 0f, 1f, 0f, 1f, 1f, 0f, 1f, 0f, 0f }, 3);
-		AttributeArray colors = new AttributeArray(1, new Float[] { 1f, 1f, 1f, 1f, 1f, 1f, 1f, 1f, 1f, 1f, 1f, 1f }, 3);
+		AttributeArray colors = new AttributeArray(1, new Float[] { 1f, 1f, 1f, 1f, 1f, 1f, 1f, 1f, 1f, 1f, 1f, 1f },
+				3);
 		test = new VBO(new AttributeArray[] { verts, colors }, 4, GL11.GL_TRIANGLES);
 		test.create();
 
+		fbo = new FBO(800, 600);
+		fbo.create();
+
+		AttributeArray fbovertex = new AttributeArray(0,
+				new Float[] { -1f, -1f, 0f, -1f, 1f, 0f, 1f, 1f, 0f, 1f, -1f, 0f }, 3);
+		AttributeArray fbotex = new AttributeArray(3, new Float[] { 0f, 0f, 0f, 0f, 1f, 0f, 1f, 1f, 0f, 1f, 0f, 0f },
+				3);
+
+		fbovbo = new VBO(new AttributeArray[] { fbotex, fbovertex }, 4, GL11.GL_QUADS);
+		fbovbo.create();
 	}
 
 	@Override
@@ -80,6 +105,10 @@ public class TestRenderer extends MasterRenderer {
 		transMat.reset();
 
 		program.enable();
+
+		fbo.bind();
+		fbo.clearFramebuffer();
+
 		program.setInt("renderMode", 0);
 
 		program.setMatrix4f("projectionMatrix", perspMat);
@@ -91,12 +120,22 @@ public class TestRenderer extends MasterRenderer {
 
 		mm.get("train").draw(program);
 
+		fbo.unbind();
+
 		program.disable();
+		//program.setInt("renderMode", 1);
+		fboProgram.enable();
+		fbo.renderToVBO(fbovbo);
+
+		fboProgram.disable();
 	}
 
 	@Override
 	public void update(RenderContext context) {
 		updateMatrices(context);
+		fbo.setSize(context.getWidth(), context.getHeight());
+		fbo.delete();
+		fbo.create();
 	}
 
 	@Override
@@ -128,7 +167,6 @@ public class TestRenderer extends MasterRenderer {
 
 	private void updateMatrices(RenderContext context) {
 		perspMat = MatrixMath.createPerspectiveMatrix(90f, context.getAspect(), 1f, 300f);
-		System.out.println(perspMat);
 	}
 
 	private void updateShaderCode(ShaderObject vertex, ShaderObject fragment) {

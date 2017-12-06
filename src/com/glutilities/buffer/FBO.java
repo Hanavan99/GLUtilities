@@ -132,6 +132,7 @@ public class FBO implements Bindable, Reusable {
 	 */
 	public void clearFramebuffer() {
 		GL30.glClearBufferfi(GL30.GL_DEPTH_STENCIL, framebuffer, 0, 0);
+		GL11.glClear(GL11.GL_COLOR_BUFFER_BIT | GL11.GL_DEPTH_BUFFER_BIT | GL11.GL_STENCIL_BUFFER_BIT);
 	}
 
 	/**

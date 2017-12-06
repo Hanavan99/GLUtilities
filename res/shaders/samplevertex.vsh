@@ -12,7 +12,7 @@ out vec2 tex_Coords;
 out float reflection;
 out float specularReflection;
 
-uniform vec4 plane = vec4(0, 0, -1, 1);
+uniform int renderMode;
 
 vec3 light = normalize(vec3(0, 0, 1));
 
@@ -22,5 +22,9 @@ void main() {
 	reflection = dot(light, normal);
 	vec3 eye = (transformMatrix * vec4(0)).xyz;
 	specularReflection = dot(eye, reflect(-light, normal));
-	gl_Position = projectionMatrix * transformMatrix * worldPos;
+	if (renderMode == 0) {
+		gl_Position = projectionMatrix * transformMatrix * worldPos;
+	} else if (renderMode == 1) {
+		gl_Position = worldPos;
+	}
 }

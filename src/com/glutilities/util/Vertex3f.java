@@ -8,7 +8,7 @@ public class Vertex3f extends Vertex2f {
 		super(f);
 		z = f;
 	}
-	
+
 	public Vertex3f(float x, float y, float z) {
 		super(x, y);
 		this.z = z;
@@ -64,7 +64,7 @@ public class Vertex3f extends Vertex2f {
 	public void setZ(float z) {
 		this.z = z;
 	}
-	
+
 	public void addZ(float dz) {
 		z += dz;
 	}
@@ -72,25 +72,30 @@ public class Vertex3f extends Vertex2f {
 	public float getR() {
 		return getX();
 	}
-	
+
 	public void setR(float r) {
 		setX(r);
 	}
-	
+
 	public float getG() {
 		return getY();
 	}
-	
+
 	public void setG(float g) {
 		setY(g);
 	}
-	
+
 	public float getB() {
 		return getZ();
 	}
-	
+
 	public void setB(float b) {
 		setZ(b);
+	}
+
+	@Override
+	public String toString() {
+		return super.toString() + " z=" + z;
 	}
 
 }

@@ -10,6 +10,10 @@ public class TransformMatrix {
 	private Vertex3f rot = new Vertex3f(0);
 	private Vertex3f trans = new Vertex3f(0);
 	private Vertex3f scale = new Vertex3f(1);
+	
+	public TransformMatrix() {
+		
+	}
 
 	public TransformMatrix(ShaderProgram program, String matrixName) {
 		this.program = program;
@@ -62,7 +66,6 @@ public class TransformMatrix {
 		setRotation(0, 0, 0);
 		setTranslation(0, 0, 0);
 		setScale(1, 1, 1);
-		update();
 	}
 
 	public void update() {
@@ -73,12 +76,13 @@ public class TransformMatrix {
 
 	public Matrix4f getMatrix() {
 		Matrix4f mat = Matrix4f.IDENTITY_MATRIX;
-		mat = MatrixMath.setTranslation(mat, trans);
-		mat = MatrixMath.setScale(mat, scale);
+		Matrix4f transMat = MatrixMath.setTranslation(mat, trans);
+		Matrix4f scaleMat = MatrixMath.setScale(mat, scale);
 		Matrix4f rotX = MatrixMath.rotate(mat, rot.getX(), 0b100);
 		Matrix4f rotY = MatrixMath.rotate(mat, rot.getY(), 0b010);
 		Matrix4f rotZ = MatrixMath.rotate(mat, rot.getZ(), 0b001);
-		mat = mat.multiply(rotX).multiply(rotY).multiply(rotZ);
+		mat = mat.multiply(transMat).multiply(rotX).multiply(rotY).multiply(rotZ).multiply(scaleMat);
+		
 		return mat;
 	}
 

@@ -5,8 +5,8 @@ import org.lwjgl.opengl.ARBVertexShader;
 
 public class VertexShader extends ShaderObject {
 
-	public VertexShader(String name, String code) {
-		super(name, code);
+	public VertexShader(String code) {
+		super(code);
 	}
 
 	@Override

@@ -5,8 +5,8 @@ import org.lwjgl.opengl.ARBShaderObjects;
 
 public class FragmentShader extends ShaderObject {
 
-	public FragmentShader(String name, String code) {
-		super(name, code);
+	public FragmentShader(String code) {
+		super(code);
 	}
 
 	@Override

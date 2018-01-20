@@ -34,8 +34,8 @@ public class UIRenderer extends MasterRenderer {
 
 	@Override
 	public void init(RenderContext context) {
-		VertexShader vsh = new VertexShader("v", loadFile(new File("res/shaders/ui.vsh")));
-		FragmentShader fsh = new FragmentShader("f", loadFile(new File("res/shaders/ui.fsh")));
+		VertexShader vsh = new VertexShader(loadFile(new File("res/shaders/ui.vsh")));
+		FragmentShader fsh = new FragmentShader(loadFile(new File("res/shaders/ui.fsh")));
 		program = new ShaderProgram(vsh, fsh);
 		vsh.create();
 		fsh.create();

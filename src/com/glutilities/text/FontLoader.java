@@ -57,9 +57,9 @@ public class FontLoader extends ResourceLoader<Charset, String, com.glutilities.
 			float texy1 = (imgy + glyphSize) / (float) (GLYPHS * glyphSize) / 2;
 			Rectangle texCoords = new Rectangle(texx, texy, texx + (textWidth / (float) (GLYPHS * glyphSize)), texy1);
 			g.drawString(String.valueOf(c), imgx, imgy + (int) (glyphSize * 0.78f));
-			float width = textWidth / 20f * (float) Math.pow(2, 6 - src.getTextureScale());
+			float width = textWidth * (float) Math.pow(2, -src.getTextureScale());
 			// float texWidth = textWidth / (float) glyphSize;
-			float[] averts = new float[] { 0, 0, 0, 0, 1, 0, width, 1, 0, width, 0, 0 };
+			float[] averts = new float[] { 0, 0, 0, 0, -1, 0, width, -1, 0, width, 0, 0 };
 			Vertex2f a = texCoords.getMin();
 			Vertex2f b = texCoords.getMax();
 			float[] atexCoords = new float[] { a.getX(), a.getY(), 0, a.getX(), b.getY(), 0, b.getX(), b.getY(), 0, b.getX(), a.getY(), 0 };
@@ -68,7 +68,7 @@ public class FontLoader extends ResourceLoader<Charset, String, com.glutilities.
 			glyphs[(int) c] = new Glyph(c, texCoords, width);
 		}
 		AttributeArray verts = new AttributeArray(0, ArrayUtils.toObjectArray(vboVerts), 3);
-		AttributeArray texcoords = new AttributeArray(0, ArrayUtils.toObjectArray(vboTexCoords), 3);
+		AttributeArray texcoords = new AttributeArray(3, ArrayUtils.toObjectArray(vboTexCoords), 3);
 		VBO vbo = new VBO(new AttributeArray[] { verts, texcoords }, 4, GL11.GL_QUADS);
 		vbo.create();
 		Texture charmap = build(image, "a");

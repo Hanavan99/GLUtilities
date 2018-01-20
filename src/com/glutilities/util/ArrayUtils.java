@@ -51,9 +51,40 @@ public class ArrayUtils {
 		}
 		return result;
 	}
+	
+	/**
+	 * Convert a {@code Byte[]} array to a {@code byte[]} array.
+	 * 
+	 * @param array
+	 *            the array
+	 * @return the primitive array
+	 */
+	public static byte[] toPrimitiveArray(Byte[] array) {
+		byte[] result = new byte[array.length];
+		for (int i = 0; i < result.length; i++) {
+			result[i] = array[i];
+		}
+		return result;
+	}
 
 	public static Float[] toObjectArray(float[] array) {
 		Float[] result = new Float[array.length];
+		for (int i = 0; i < result.length; i++) {
+			result[i] = array[i];
+		}
+		return result;
+	}
+	
+	public static Byte[] toObjectArray(byte[] array) {
+		Byte[] result = new Byte[array.length];
+		for (int i = 0; i < result.length; i++) {
+			result[i] = array[i];
+		}
+		return result;
+	}
+	
+	public static Integer[] toObjectArray(int[] array) {
+		Integer[] result = new Integer[array.length];
 		for (int i = 0; i < result.length; i++) {
 			result[i] = array[i];
 		}
@@ -79,6 +110,17 @@ public class ArrayUtils {
 	 *            the pattern
 	 */
 	public static void fill(float[] array, float[] pattern) {
+		for (int i = 0; i < array.length; i++) {
+			array[i] = pattern[i % pattern.length];
+		}
+	}
+	
+	/**
+	 * {@code Object[]} version of {@link #fill(float[], float[])}.
+	 * @param array
+	 * @param pattern
+	 */
+	public static void fill(Object[] array, Object[] pattern) {
 		for (int i = 0; i < array.length; i++) {
 			array[i] = pattern[i % pattern.length];
 		}

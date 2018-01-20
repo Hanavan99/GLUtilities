@@ -341,4 +341,12 @@ public final class GLWindow implements Reusable {
 		GLFW.glfwDestroyWindow(window);
 	}
 
+	public static void initGLFW() {
+		GLFW.glfwInit();
+	}
+
+	public static void terminateGLFW() {
+		GLFW.glfwTerminate();
+	}
+
 }

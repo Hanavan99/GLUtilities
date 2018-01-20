@@ -2,7 +2,7 @@ package com.glutilities.terrain;
 
 import java.util.Random;
 
-public class PerlinGenerator {
+public class PerlinGenerator implements Cloneable {
 
 	/*
 	 * Perlin.cpp
@@ -21,6 +21,9 @@ public class PerlinGenerator {
 	private double[] Gy;
 	private double[] Gz;
 
+	private double xoff = 0;
+	private double yoff = 0;
+	private double zoff = 0;
 	private double xscale = 1;
 	private double yscale = 1;
 	private double zscale = 1;
@@ -79,6 +82,17 @@ public class PerlinGenerator {
 		this.outscale = outscale;
 	}
 
+	public PerlinGenerator(long seed, double xoff, double yoff, double zoff, double xscale, double yscale, double zscale, double outscale) {
+		this(seed);
+		this.xoff = xoff;
+		this.yoff = yoff;
+		this.zoff = zoff;
+		this.xscale = xscale;
+		this.yscale = yscale;
+		this.zscale = zscale;
+		this.outscale = outscale;
+	}
+
 	/**
 	 * Initializes the arrays and maps.
 	 */
@@ -109,7 +123,7 @@ public class PerlinGenerator {
 
 	/**
 	 * Gets the noise with the given coordinates, ignoring any input and output
-	 * scaling.
+	 * scaling or translation.
 	 * 
 	 * @param x the x coordinate
 	 * @param y the y coordinate
@@ -181,7 +195,72 @@ public class PerlinGenerator {
 	 * @return the scaled noise value in the interval [-outscale, outscale]
 	 */
 	public double noise(double x, double y, double z) {
-		return unscaledNoise(x * xscale, y * yscale, z * zscale) * outscale;
+		return unscaledNoise((x + xoff) * xscale, (y + yoff) * yscale, (z + zoff) * zscale) * outscale;
+	}
+	
+	public PerlinGenerator clone() {
+		try {
+			return (PerlinGenerator) super.clone();
+		} catch (CloneNotSupportedException e) {
+			e.printStackTrace();
+			return null;
+		}
+	}
+
+	public double getXoff() {
+		return xoff;
+	}
+
+	public void setXoff(double xoff) {
+		this.xoff = xoff;
+	}
+
+	public double getYoff() {
+		return yoff;
+	}
+
+	public void setYoff(double yoff) {
+		this.yoff = yoff;
+	}
+
+	public double getZoff() {
+		return zoff;
+	}
+
+	public void setZoff(double zoff) {
+		this.zoff = zoff;
+	}
+
+	public double getXscale() {
+		return xscale;
+	}
+
+	public void setXscale(double xscale) {
+		this.xscale = xscale;
+	}
+
+	public double getYscale() {
+		return yscale;
+	}
+
+	public void setYscale(double yscale) {
+		this.yscale = yscale;
+	}
+
+	public double getZscale() {
+		return zscale;
+	}
+
+	public void setZscale(double zscale) {
+		this.zscale = zscale;
+	}
+
+	public double getOutscale() {
+		return outscale;
+	}
+
+	public void setOutscale(double outscale) {
+		this.outscale = outscale;
 	}
 
 }

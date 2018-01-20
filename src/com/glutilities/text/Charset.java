@@ -7,6 +7,7 @@ import com.glutilities.util.Vertex2f;
 import com.glutilities.util.Vertex3f;
 import com.glutilities.util.matrix.Matrix4f;
 import com.glutilities.util.matrix.MatrixMath;
+import com.glutilities.util.matrix.TransformMatrix;
 
 public class Charset {
 
@@ -61,7 +62,8 @@ public class Charset {
 				if (c == '\n') {
 					lines++;
 					fork = (Matrix4f) transform.clone();
-					fork = MatrixMath.translate(fork, new Vertex3f(0,/* font.getLeading() * lines * scale*/30 * lines, 0));
+					fork = MatrixMath.translate(fork, new Vertex3f(0,
+							/* font.getLeading() * lines * scale */30 * lines, 0));
 				}
 				if (c == '\t') {
 					float curx = fork.get(0, 3);
@@ -73,7 +75,34 @@ public class Charset {
 		charmap.unbind();
 		charVBO.unbind();
 	}
-	
+
+	public void draw(String text, TransformMatrix transform, ShaderProgram program, String texSamplerName) {
+		int lines = 0;
+		charVBO.bind();
+		charmap.bind();
+		program.setInt(texSamplerName, 0);
+		if (text != null) {
+			for (char c : text.toCharArray()) {
+				Glyph g = getGlyphForChar(c);
+				if (g != null) {
+					int base = c * 4;
+					charVBO.draw(base, 4);
+					transform.translate((g.getWidth() / 4f + font.getKerning()), 0, 0);
+				}
+				if (c == '\n') {
+					lines++;
+					transform.translate(-transform.getMatrix().get(0, 3), 30 * lines, 0);
+				}
+				if (c == '\t') {
+
+				}
+
+			}
+		}
+		charmap.unbind();
+		charVBO.unbind();
+	}
+
 	public Vertex2f getEndingPosition(String text, Matrix4f transform) {
 		int lines = 0;
 		float scale = MatrixMath.getScale(transform).getX() * 20f;

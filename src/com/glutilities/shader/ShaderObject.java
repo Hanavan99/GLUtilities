@@ -18,24 +18,16 @@ public abstract class ShaderObject implements Reusable {
 	protected int shader;
 
 	/**
-	 * The user-defined name of the shader.
-	 */
-	private String name;
-
-	/**
 	 * The code that is compiled into the shader program.
 	 */
 	private String code;
 
 	/**
-	 * Creates a new shader object with a user-defined name and
-	 * code/program.
+	 * Creates a new shader object with a user-defined name and code/program.
 	 * 
-	 * @param name the user-defined name of the shader; optional
 	 * @param code the code that is compiled into the shader program
 	 */
-	public ShaderObject(String name, String code) {
-		this.name = name;
+	public ShaderObject(String code) {
 		this.code = code;
 	}
 
@@ -46,15 +38,6 @@ public abstract class ShaderObject implements Reusable {
 	 */
 	public int getShaderID() {
 		return shader;
-	}
-
-	/**
-	 * Gets the user-defined name of this shader; allowed to be null
-	 * 
-	 * @return the name of the shader
-	 */
-	public String getName() {
-		return name;
 	}
 
 	/**

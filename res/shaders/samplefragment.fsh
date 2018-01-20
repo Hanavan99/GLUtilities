@@ -25,7 +25,7 @@ void main() {
 	} else if (renderMode == 1) {
 		out_Color = texture(glyphTex, tex_Coords);
 	} else if (renderMode == 2) {
-		out_Color = texture(glyphTex, tex_Coords);
+		out_Color = vec4(texture(glyphTex, tex_Coords).rgb, 1);
 	} else {
 		out_Color = vec4(1, 1, 1, 1);
 	} 
